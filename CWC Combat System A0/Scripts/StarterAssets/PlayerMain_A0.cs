@@ -172,6 +172,7 @@ using UnityEngine.InputSystem;
             {
                 _combatSystem.CurrentStatus();
                 _combatSystem.UpdatePassiveEffects();
+                _combatSystem.UpdateCharmsEffects();
                 _combatSystem.UpdateHandleDamage();
                 _combatSystem.UpdateHandleReward();
                 nextStateID = _combatSystem.curKB_getHit > 1 ? 14 : nextStateID;
@@ -571,12 +572,17 @@ using UnityEngine.InputSystem;
         /// </summary>
         public void MoveAndLook(float targetSpeed, Vector3 targetMovingDirection, float targetRotationOfPlayer, float VV)
         {
-            // Update animation-driving fields
             targetMovingDirection = targetMovingDirection.sqrMagnitude > 0.000001f ? targetMovingDirection.normalized : Vector3.forward;
 
-            // Horizontal velocity (world-space)
-            Vector3 horizontal = new Vector3(targetMovingDirection.x, 0f, targetMovingDirection.z) * targetSpeed;
+            float finalTargetSpeed = targetSpeed;
 
+            if (_combatSystem != null && _combatSystem.charmRunSpeed && targetSpeed > 0f && nextStateID == 0)
+            {
+                finalTargetSpeed *= _combatSystem.runSpeedMultiplier;
+            }
+
+            Vector3 horizontal = new Vector3(targetMovingDirection.x, 0f, targetMovingDirection.z) * finalTargetSpeed;
+            
             if (_controller != null)
             {
                 // Ground check and vertical velocity handling
@@ -619,7 +625,7 @@ using UnityEngine.InputSystem;
             //     // _animator.SetFloat("MoveZ", _anim_moveDirection.z);
             //     // _animator.SetFloat("LookRotation", _anim_lookRotation);
                 
-                _animator.SetFloat(_playerDecision._animIDSpeed, targetSpeed);
+                _animator.SetFloat(_playerDecision._animIDSpeed, finalTargetSpeed);
                 _animator.SetFloat(_playerDecision._animIDMotionSpeed, 1f);
                 _animator.SetFloat(_playerDecision._animIDVV, _verticalVelocity);
             }

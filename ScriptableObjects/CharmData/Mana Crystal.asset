@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   charmName: Mana Crystal
   charmSprite: {fileID: 1435577170, guid: 4df8b295093ec5342bbf4fcc3824d606, type: 3}
-  charmCost: 1
-  charmDescription: Description
+  charmCost: 2
+  charmDescription: Run Faster!
   charmID: 0
   unlocked: 1
   equipped: 0

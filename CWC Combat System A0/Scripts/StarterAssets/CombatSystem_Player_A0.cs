@@ -147,6 +147,20 @@ public class CombatSystem_Player_A0 : MonoBehaviour
     private PlayerMain_A0 _playerMain;
     public bool isReady = false;
 
+
+    [Header("Charm Effects")]
+    public bool charmHealthRegen = false;
+    public bool charmStaminaBoost = false;
+    public bool charmRunSpeed = false;
+    public bool charmHealOnHit = false;
+    public bool charmDamageReduction = false;
+
+    public float healthRegenRate = 0.02f;
+    public float staminaRegenMultiplier = 2.0f;
+    public float runSpeedMultiplier = 1.5f;
+    public float healOnHitAmount = 50f;
+    public float damageReductionMultiplier = 0.30f;
+
     private void Start()
     {
         currentHealth = maxHealth;
@@ -210,11 +224,16 @@ public class CombatSystem_Player_A0 : MonoBehaviour
 
                 for (int i = 0; i < damageData.damageTypes.Count; i++ )
                 {
-
                     H -= damageData.damageTypes[i].Value;
                     P -= damageData.poiseDamageTypes[i].Value;
-                    // S2 -= damageData.poiseDamageTypes[i].Value;
                 }
+
+                // Apply Damage Reduction Charm
+                if (charmDamageReduction && H < 0f)
+                {
+                    H *= damageReductionMultiplier; 
+                }
+
                 ValueEditing(H * temp_multiplier, F, S1, P * temp_multiplier);
             }
             // if (currentHealth <= 0)
@@ -280,9 +299,15 @@ public class CombatSystem_Player_A0 : MonoBehaviour
             lock (hitboxes[i]._rewardLock)
             {
                 if (hitboxes[i].currentPendingRewardList.Count == 0) continue;
-                // DamageData damageData = hitboxes[i].currentPendingRewardList[0];
-                ValueEditing(0f, 0f, 0f, 5f); // can edit to add reward for player here, like heal or stamina regen
+                
+                // Remove the pending reward
                 hitboxes[i].currentPendingRewardList.RemoveAt(0);
+
+                // Apply heal if the charm is active
+                float healAmount = charmHealOnHit ? healOnHitAmount : 0f;
+                
+                // Add health reward, 0 Focus, 0 Stamina, 5 Poise
+                ValueEditing(healAmount, 0f, 0f, 5f); 
             }
         }
     }
@@ -454,13 +479,19 @@ public class CombatSystem_Player_A0 : MonoBehaviour
         if (currentPassiveEffectTimeout <= 0f)
         {
             currentPassiveEffectTimeout = -0.1f;
-            ValueEditing(0f, 0f, Time.deltaTime * maxStamina * 0.333f, 0f); // stamina regen, can edit to add other passive effects here
+            
+            float staminaMult = charmStaminaBoost ? staminaRegenMultiplier : 1f;
+            ValueEditing(0f, 0f, Time.deltaTime * maxStamina * 0.333f * staminaMult, 0f);
         }
     }
 
     public void UpdateCharmsEffects()
     {
-        // todo: Charms
+        if (charmHealthRegen && currentHealth > 0f && currentHealth < maxHealth)
+        {
+            // Regen health at healthRegenRate % of maxHealth per second
+            ValueEditing(Time.deltaTime * maxHealth * healthRegenRate, 0f, 0f, 0f);
+        }
     }
 
     public void Enable_VFX(int vfxIndex)

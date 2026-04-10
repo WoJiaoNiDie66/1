@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   charmName: Magic Wand
   charmSprite: {fileID: -1648147684, guid: 4df8b295093ec5342bbf4fcc3824d606, type: 3}
-  charmCost: 1
-  charmDescription: Description here
+  charmCost: 3
+  charmDescription: Health Regen over time
   charmID: 1
-  unlocked: 0
+  unlocked: 1
   equipped: 0
   equippedSlotID: -1

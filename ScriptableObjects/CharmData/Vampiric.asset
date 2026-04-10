@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bc81120750d2c6c4cb508591abe2581d, type: 3}
-  m_Name: Crown
+  m_Name: Vampiric
   m_EditorClassIdentifier: 
-  charmName: Crown
-  charmSprite: {fileID: -1417393281, guid: 4df8b295093ec5342bbf4fcc3824d606, type: 3}
+  charmName: Vampiric
+  charmSprite: {fileID: 1435577170, guid: 4df8b295093ec5342bbf4fcc3824d606, type: 3}
   charmCost: 2
-  charmDescription: Stamina regenerate faster
-  charmID: 2
+  charmDescription: Steal health from enemy
+  charmID: 3
   unlocked: 1
   equipped: 0
   equippedSlotID: -1
