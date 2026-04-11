@@ -19,6 +19,9 @@ public class Hitbox : MonoBehaviour
     [SerializeField] private bool allowMultiHit = true;  // Can hit multiple enemies
     [SerializeField] private bool singleHitPerTarget = true; // Each enemy hit only once
     
+    [HideInInspector]
+    public float equipmentDamageMultiplier = 1f;
+    
     [Header("Debug Settings")]
     [SerializeField] private bool showDebug = true;
     [SerializeField] private Color debugColor = new Color(1, 0, 0, 0.3f);
@@ -34,6 +37,17 @@ public class Hitbox : MonoBehaviour
         hitboxCollider = GetComponent<Collider>();
         hitboxCollider.isTrigger = true;
         DisableHitbox();
+    }
+
+    private void ApplyEquipmentWeaponBonus(DamageData damageData)
+    {
+        if (damageData == null) return;
+        if (Mathf.Approximately(equipmentDamageMultiplier, 1f)) return;
+
+        for (int i = 0; i < damageData.damageTypes.Count; i++)
+        {
+            damageData.damageTypes[i].Value *= equipmentDamageMultiplier;
+        }
     }
 
     public void UpdateDamageData(DamageData damageData, int j)
@@ -53,7 +67,7 @@ public class Hitbox : MonoBehaviour
                 ownerBuffData = damageData;
                 break;
             case 4:
-                summedData = weaponData;
+                summedData = Instantiate(weaponData);
                 for (int i = 0; i < damageData.damageTypes.Count; i++)
                 {
                     // after weapon buff
@@ -84,6 +98,8 @@ public class Hitbox : MonoBehaviour
     
     public void ActivateHitbox()
     {
+        ApplyEquipmentWeaponBonus(summedData);
+
         // hitTargets.Clear();  // Reset tracking each activation
         hitCharacters.Clear();
         hitboxCollider.enabled = true;

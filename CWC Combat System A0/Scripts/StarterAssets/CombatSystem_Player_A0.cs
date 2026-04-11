@@ -146,6 +146,7 @@ public class CombatSystem_Player_A0 : MonoBehaviour
 
     private PlayerMain_A0 _playerMain;
     public bool isReady = false;
+    public float equipmentWeaponDamageMultiplier = 1f;
 
 
     [Header("Charm Effects")]
@@ -167,6 +168,8 @@ public class CombatSystem_Player_A0 : MonoBehaviour
         currentFocus = maxFocus;
         currentStamina = maxStamina;
         currentPoise = maxPoise;
+        equipmentWeaponDamageMultiplier = 1f;
+
         for (int i = 0; i < currentDizzyDamageLevel.Length; i++ )
         {
             currentDizzyDamageLevel[i] = baseDizzyDamageLevel[i];
@@ -234,7 +237,8 @@ public class CombatSystem_Player_A0 : MonoBehaviour
                     H *= damageReductionMultiplier; 
                 }
 
-                ValueEditing(H * temp_multiplier, F, S1, P * temp_multiplier);
+                float incomingDamageMultiplier = EquipmentManager.IncomingDamageMultiplier;
+                ValueEditing(H * temp_multiplier * incomingDamageMultiplier, F, S1, P * temp_multiplier);
             }
             // if (currentHealth <= 0)
             // {
@@ -436,8 +440,9 @@ public class CombatSystem_Player_A0 : MonoBehaviour
             hitboxes[hitboxIndex].UpdateDamageData(weaponDatas[weaponDataIndex], 0);
             hitboxes[hitboxIndex].UpdateDamageData(weaponBuffDatas[weaponBuffDataIndex], 1);
             hitboxes[hitboxIndex].UpdateDamageData(skillDatas[skillDataIndex], 2);
-            // hitboxes[hitboxIndex].UpdateDamageData(weaknessDatas[0], 3);
             hitboxes[hitboxIndex].UpdateDamageData(weaponDatas[0], 4);
+
+            hitboxes[hitboxIndex].equipmentDamageMultiplier = EquipmentManager.OutgoingDamageMultiplier;
             hitboxes[hitboxIndex].ActivateHitbox();
         }
     }
