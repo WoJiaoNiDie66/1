@@ -286,6 +286,7 @@ public class EquipCharmInventoryUI : SelectorManager
                 nextEmptySlot--;
             }
 
+            nextEmptySlot--;
             for(int i = 0; i < uis.Length-1; i++)
             {
                 slotUI1 = uis[i] as EquipCharmSlotUI;

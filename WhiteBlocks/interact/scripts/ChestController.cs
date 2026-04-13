@@ -1,25 +1,36 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class ChestController : MonoBehaviour
 {
     [Header("寶箱部位")]
     [Tooltip("請拖入寶箱蓋子 (Chest_02)")]
-    public Transform chestLid; 
+    public Transform chestLid;
 
     [Header("角度設定 (X軸)")]
-    public float closedAngleX = 50f;     // 關閉時的角度
-    public float openAngleX = -1.612f;   // 打開時的角度
-    
+    public float closedAngleX = 50f;
+    public float openAngleX = -1.612f;
+
     [Header("互動設定")]
-    public float openSpeed = 3f;         // 開關的速度
-    public KeyCode interactKey = KeyCode.E; // 互動按鍵
+    public float openSpeed = 3f;
+    public KeyCode interactKey = KeyCode.E;
+
+    [Header("寶箱內容")]
+    [Tooltip("Assign a ChestData ScriptableObject to define rewards")]
+    public ChestData chestData;
+
+    [Header("Reward Animation Settings")]
+    public float floatHeight = 1.8f;         // How high the sprite floats up
+    public float spinSpeed = 360f;         // How fast it spins (degrees per second)
+    public float spriteScale = 2f;         // Adjust if your sprites are too small/big
+    public Vector3 spawnOffset = new Vector3(0, 0.5f, 0); // Starting offset from chest center
 
     private bool isOpen = false;
     private bool isMoving = false;
     private bool playerInRange = false;
+    private bool hasBeenOpened = false;
 
-    // 紀錄蓋子原本的 Y 和 Z 角度，避免旋轉時歪掉
     private float defaultY;
     private float defaultZ;
 
@@ -27,11 +38,8 @@ public class ChestController : MonoBehaviour
     {
         if (chestLid != null)
         {
-            // 記下模型原本的 Y 和 Z 軸角度
             defaultY = chestLid.localEulerAngles.y;
             defaultZ = chestLid.localEulerAngles.z;
-
-            // 遊戲一開始，強制將寶箱設為「關閉」的角度
             chestLid.localRotation = Quaternion.Euler(closedAngleX, defaultY, defaultZ);
         }
         else
@@ -42,30 +50,25 @@ public class ChestController : MonoBehaviour
 
     void Update()
     {
-        // 玩家在範圍內 + 蓋子沒在動 + 按下 E 鍵
-        if (playerInRange && !isMoving && Input.GetKeyDown(interactKey))
+        if (playerInRange && !isMoving && !hasBeenOpened && Input.GetKeyDown(interactKey))
         {
-            StartCoroutine(ToggleChest());
+            StartCoroutine(OpenChestAndGiveRewards());
         }
     }
 
-    IEnumerator ToggleChest()
+    IEnumerator OpenChestAndGiveRewards()
     {
         isMoving = true;
-        isOpen = !isOpen; // 反轉狀態
+        isOpen = true;
+        hasBeenOpened = true;
 
-        Debug.Log(isOpen ? "【寶箱】打開" : "【寶箱】關閉");
+        Debug.Log("【寶箱】打開");
 
-        // 決定目標角度
-        float targetAngleX = isOpen ? openAngleX : closedAngleX;
-        
-        // 設定起點與終點的四元數 (Quaternion)
+        // --- Animate lid open ---
         Quaternion startRot = chestLid.localRotation;
-        Quaternion targetRot = Quaternion.Euler(targetAngleX, defaultY, defaultZ);
-
+        Quaternion targetRot = Quaternion.Euler(openAngleX, defaultY, defaultZ);
         float elapsed = 0f;
 
-        // 執行平滑旋轉動畫
         while (elapsed < 1f)
         {
             elapsed += Time.deltaTime * openSpeed;
@@ -73,9 +76,100 @@ public class ChestController : MonoBehaviour
             yield return null;
         }
 
-        // 確保最終角度精準到位
         chestLid.localRotation = targetRot;
         isMoving = false;
+
+        // --- Give rewards ---
+        if (chestData == null)
+        {
+            Debug.LogWarning("【寶箱】沒有設定 ChestData，沒有獎勵。");
+            yield break;
+        }
+
+        List<ChestData.ChestReward> rewards = chestData.PickRewards();
+
+        if (rewards.Count == 0)
+        {
+            Debug.Log("【寶箱】是空的！");
+            yield break;
+        }
+
+        // Loop through rewards and spawn visuals
+        foreach (var reward in rewards)
+        {
+            Sprite rewardSprite = null;
+
+            if (reward.rewardType == ChestData.ChestReward.RewardType.Charm && reward.charm != null)
+            {
+                reward.charm.SetUnlock();
+                rewardSprite = reward.charm.CharmSprite;
+                Debug.Log($"【寶箱】獲得符文：{reward.charm.CharmName}");
+            }
+            else if (reward.rewardType == ChestData.ChestReward.RewardType.Item && reward.item != null)
+            {
+                reward.item.SetUnlock();
+                rewardSprite = reward.item.ItemSprite;
+                Debug.Log($"【寶箱】獲得道具：{reward.item.ItemName}");
+            }
+
+            // Spawn and animate the sprite if one exists
+            if (rewardSprite != null)
+            {
+                StartCoroutine(SpawnAndAnimateReward(rewardSprite));
+                
+                // Wait 0.5 seconds before spawning the next item so they don't perfectly overlap
+                yield return new WaitForSeconds(0.5f); 
+            }
+        }
+    }
+
+    // --- Reward Animation Coroutine ---
+    IEnumerator SpawnAndAnimateReward(Sprite sprite)
+    {
+        // 1. Create a new empty GameObject for the visual
+        GameObject visualObj = new GameObject("RewardVisual");
+        visualObj.transform.position = transform.position + spawnOffset;
+        visualObj.transform.localScale = Vector3.one * spriteScale;
+
+        // 2. Add a SpriteRenderer and assign the item's sprite
+        SpriteRenderer sr = visualObj.AddComponent<SpriteRenderer>();
+        sr.sprite = sprite;
+
+        // To ensure it renders cleanly in 3D space, you can uncomment this if it hides behind other transparent things
+        // sr.sortingOrder = 10; 
+
+        Vector3 startPos = visualObj.transform.position;
+        Vector3 targetPos = startPos + Vector3.up * floatHeight;
+
+        // Phase 1: Spin up for 1 second
+        float timer = 0f;
+        while (timer < 1f)
+        {
+            timer += Time.deltaTime;
+            
+            // Lerp position upwards (SmoothStep makes it ease out nicely at the top)
+            visualObj.transform.position = Vector3.Lerp(startPos, targetPos, Mathf.SmoothStep(0f, 1f, timer));
+            
+            // Spin on the Y axis
+            visualObj.transform.Rotate(0f, spinSpeed * Time.deltaTime, 0f);
+            
+            yield return null;
+        }
+
+        // Lock exactly to target height to prevent floating point inaccuracies
+        visualObj.transform.position = targetPos;
+
+        // Phase 2: Stay in position and keep spinning for 2 seconds
+        timer = 0f;
+        while (timer < 2f)
+        {
+            timer += Time.deltaTime;
+            visualObj.transform.Rotate(0f, spinSpeed * Time.deltaTime, 0f);
+            yield return null;
+        }
+
+        // Phase 3: Disappear (Destroy the temporary GameObject)
+        Destroy(visualObj);
     }
 
     // --- 感應區設定 ---
@@ -84,7 +178,8 @@ public class ChestController : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             playerInRange = true;
-            Debug.Log("靠近寶箱，按 E 互動");
+            if (!hasBeenOpened)
+                Debug.Log("靠近寶箱，按 E 互動");
         }
     }
 

@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-//Different from SelectionUI is that you don't need to click to select it. 
 public class ItemSlotUI : SelectionUI
 {
     [SerializeField]
@@ -29,15 +28,10 @@ public class ItemSlotUI : SelectionUI
     protected override void Start()
     {
         base.Start();
-        if(item != null)
+        if (item != null)
         {
             itemImage.sprite = item.ItemSprite;
-
-            if (!item.Unlocked)
-            {
-                itemImage.color = Color.black;
-            }
-
+            RefreshVisual();
         }
         else
         {
@@ -45,35 +39,49 @@ public class ItemSlotUI : SelectionUI
         }
     }
 
+    // Called every time the menu GameObject is enabled (opened)
+    private void OnEnable()
+    {
+        if (item != null)
+            RefreshVisual();
+    }
+
+    /// <summary>
+    /// Reads the current unlock/equip state and applies the correct color.
+    /// </summary>
+    public void RefreshVisual()
+    {
+        if (item == null) return;
+
+        if (!item.Unlocked)
+            itemImage.color = Color.black;
+        else if (equipped)
+            itemImage.color = new Color(0.5f, 0.5f, 0.5f);
+        else
+            itemImage.color = Color.white;
+    }
+
     public override void Highlight()
     {
         highlightImage.sprite = borderSprites[0];
-        //base.Highlight();
     }
-
-
 
     public override void UnHighlight()
     {
         if (item == null || !item.Unlocked)
-        {
             highlightImage.sprite = borderSprites[2];
-        }
         else
-        {
             highlightImage.sprite = borderSprites[1];
-        }
-        //base.UnHighlight();
     }
 
     public void OnUnlock()
     {
-        itemImage.color = Color.white;
+        RefreshVisual();
     }
 
     public void SetEquipped(bool equipped)
     {
         this.equipped = equipped;
-        itemImage.color = (equipped)? new Color(0.5f, 0.5f, 0.5f) : Color.white;
+        RefreshVisual();
     }
 }

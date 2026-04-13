@@ -24,20 +24,15 @@ public class CharmSlotUI : SelectionUI
     private Sprite[] borderSprites;
 
     public Charm Charm => charm;
-    public bool Equipped => equipped;   
+    public bool Equipped => equipped;
 
     protected override void Start()
     {
         base.Start();
-        if(charm != null)
+        if (charm != null)
         {
             charmImage.sprite = charm.CharmSprite;
-
-            if (!charm.Unlocked)
-            {
-                charmImage.color = Color.black;
-            }
-
+            RefreshVisual();
         }
         else
         {
@@ -45,25 +40,39 @@ public class CharmSlotUI : SelectionUI
         }
     }
 
+    // Called every time the menu GameObject is enabled (opened)
+    private void OnEnable()
+    {
+        if (charm != null)
+            RefreshVisual();
+    }
+
+    /// <summary>
+    /// Reads the current unlock/equip state and applies the correct color.
+    /// </summary>
+    public void RefreshVisual()
+    {
+        if (charm == null) return;
+
+        if (!charm.Unlocked)
+            charmImage.color = Color.black;
+        else if (equipped)
+            charmImage.color = new Color(0.5f, 0.5f, 0.5f);
+        else
+            charmImage.color = Color.white;
+    }
+
     public override void Highlight()
     {
         highlightImage.sprite = borderSprites[0];
-        //base.Highlight();
     }
-
-
 
     public override void UnHighlight()
     {
         if (charm == null || !charm.Unlocked)
-        {
             highlightImage.sprite = borderSprites[2];
-        }
         else
-        {
             highlightImage.sprite = borderSprites[1];
-        }
-        //base.UnHighlight();
     }
 
     public override void OnPointerEnter(PointerEventData eventData)
@@ -76,24 +85,20 @@ public class CharmSlotUI : SelectionUI
         ParentSelector?.UIClicked(this);
     }
 
-
     public void OnUnlock()
     {
-        charmImage.color = Color.white;
+        RefreshVisual();
     }
 
     public void OnEquipped()
     {
-        charmImage.color = new Color(0.5f, 0.5f, 0.5f);
         equipped = true;
-        //charm.SetEquipped(true);
+        RefreshVisual();
     }
 
     public void OnUnequipped()
     {
-        charmImage.color = Color.white;
         equipped = false;
-        //charm.SetSlotID(-1);
-        //charm.SetEquipped(false);
+        RefreshVisual();
     }
 }

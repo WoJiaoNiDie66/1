@@ -78,10 +78,9 @@ public class CharmInventoryUI : SelectorManager
                 CharmCostManager.Instance.IncreaseCost(slotUI.Charm.CharmCost);
             }
             //Remove
-            else
+            else if (slotUI.Equipped)
             {
                 Debug.Log($"Remove Charm {slotUI.Charm.CharmName}");
-
                 CharmManager.OnCharmUnequipped.Invoke(slotUI.Charm);
                 CharmCostManager.Instance.DecreaseCost(slotUI.Charm.CharmCost);
             }
@@ -303,10 +302,9 @@ public class CharmInventoryUI : SelectorManager
             CharmCostManager.Instance.IncreaseCost(slotUI.Charm.CharmCost);
         }
         //Remove
-        else
+        else if (slotUI.Equipped)
         {
             Debug.Log($"Remove Charm {slotUI.Charm.CharmName}");
-
             CharmManager.OnCharmUnequipped.Invoke(slotUI.Charm);
             CharmCostManager.Instance.DecreaseCost(slotUI.Charm.CharmCost);
         }

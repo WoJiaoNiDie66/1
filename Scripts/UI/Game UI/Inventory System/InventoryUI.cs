@@ -26,6 +26,11 @@ public class InventoryUI : SelectorManager
                 Debug.LogError("The Inventory must only have ItemSlotUI as child");
             }
 
+            if (!slotUI.Item.Unlocked)
+            {
+                Debug.LogError("Item is not unlocked");
+            }
+
             var equippableItem = slotUI.Item as EquippableItem;
 
             if (equippableItem != null)
@@ -142,6 +147,11 @@ public class InventoryUI : SelectorManager
         if (slotUI == null)
         {
             Debug.LogError("The Inventory must only have ItemSlotUI as child");
+        }
+        if (!slotUI.Item.Unlocked)
+        {
+            Debug.Log("Item is not unlocked.");
+            return;
         }
 
         var equippableItem = slotUI.Item as EquippableItem;
