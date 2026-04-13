@@ -46,7 +46,7 @@ public class NPC : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        Debug.Log(!_currentlyInteracting || IsInteracting);
+        //Debug.Log(!_currentlyInteracting || IsInteracting);
     }
 
     private void OnTriggerExit(Collider other)

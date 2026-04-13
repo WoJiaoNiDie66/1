@@ -46,22 +46,22 @@ public class CharmCostManager : MonoBehaviour
         }
         costCount += cost;
 
-        Debug.Log($"Charm Cost: {costCount}");
+        //Debug.Log($"Charm Cost: {costCount}");
     }
 
     public void DecreaseCost(int cost)
     {
-        Debug.Log($"Total Count: {costCount}");
-        Debug.Log($"Decrease Amount: {cost}");
+        //Debug.Log($"Total Count: {costCount}");
+        //Debug.Log($"Decrease Amount: {cost}");
         for(int i = costCount - 1; i>costCount-cost-1; i--)
         {
-            Debug.Log(i);
+            //Debug.Log(i);
             costUI[i].sprite = costSprites[0];
         }
 
         costCount -= cost;
 
-        Debug.Log($"Charm Cost: {costCount}");
+        //Debug.Log($"Charm Cost: {costCount}");
     }
 
     public void InitializeUI(int totalCost)

@@ -6,26 +6,23 @@ using UnityEngine.UI;
 public class PotionUI : MonoBehaviour
 {
     /// <summary>
-    /// potionSprites[0]: Full Potion
-    /// potionSprites[1]: 2/3 Potion
-    /// potionSprites[2]: 1/3 Potion
-    /// potionSprites[3]: Empty Potion
+    /// potionSprites[0]: Empty Potion
+    /// potionSprites[1]: 1/3 Potion
+    /// potionSprites[2]: 2/3 Potion
+    /// potionSprites[3]: Full Potion
     /// </summary>
     [SerializeField]
     private Sprite[] potionSprites;
     [SerializeField]
     private Image potionImage;
-    private int count = 0;
 
-    public void OnUsedPotion()
+    public void UpdateUI(int count)
     {
-        count++;
         potionImage.sprite = potionSprites[count];
     }
 
-    public void ResetPotion()
+    public void ResetUI()
     {
-        count = 0;
-        potionImage.sprite = potionSprites[0];
+        potionImage.sprite = potionSprites[3];
     }
 }

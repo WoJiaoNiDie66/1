@@ -27,6 +27,7 @@ public class RuneManager : MonoBehaviour
     public TMP_Text readContentText;
     public TMP_Text readLikesText;
     [SerializeField] private TextMeshProUGUI openMessageUI;
+    [SerializeField] private PlayerInput playerInput;
 
     private FirebaseFirestore db;
     private const int CHUNK_SIZE = 50; 
@@ -88,9 +89,11 @@ public class RuneManager : MonoBehaviour
         if (!isActive) {
             messageInputField.text = "";
             messageInputField.ActivateInputField(); // 自动聚焦输入框
-            //LockCursor(false); // 解锁鼠标
+            LockCursor(false); // 解锁鼠标
+            playerInput.SwitchCurrentActionMap("Menu");
         } else {
-            //LockCursor(true);
+            LockCursor(true);
+            playerInput.SwitchCurrentActionMap("Player");
         }
     }
 
@@ -114,7 +117,7 @@ public class RuneManager : MonoBehaviour
         readLikesText.text = $"Liked {likes} times"; // 【修改】纯英文显示
         
         readMessageUI.SetActive(true);
-        //LockCursor(false);
+        LockCursor(false);
     }
 
     // 供阅读面板的“关闭”按钮调用
@@ -123,7 +126,7 @@ public class RuneManager : MonoBehaviour
         if (readMessageUI == null) return;
         
         readMessageUI.SetActive(false);
-        //LockCursor(true); 
+        LockCursor(true);
     }
 
     // 统一管理鼠标指针状态
@@ -161,7 +164,8 @@ public class RuneManager : MonoBehaviour
 
         writeMessageUI.SetActive(false);
         isTyping = false;
-        //LockCursor(true);
+        LockCursor(true);
+        playerInput.SwitchCurrentActionMap("Player");
     }
 
     // --- 核心数据模块 ---

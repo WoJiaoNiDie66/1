@@ -66,7 +66,7 @@ public class CombatSystem_Player_A0 : MonoBehaviour
         14. 鉤爪
         15. 火炬 (no need)
     */
-    [SerializeField] private DamageData[] weaknessDatas;
+    [SerializeField] public DamageData[] weaknessDatas;
     /*
         0. idle
     */
@@ -422,6 +422,14 @@ public class CombatSystem_Player_A0 : MonoBehaviour
                     hurtbox.invincible = false;
                     break;
             }
+        }
+    }
+
+    public void SetHurtboxDamageMultiplier(int hurtboxIndex, int j, float multiplier)
+    {
+        if (hurtboxIndex >= 0 && hurtboxIndex < hurtboxes.Length)
+        {
+            hurtboxes[hurtboxIndex].damageMultiplier[j].Value = multiplier;
         }
     }
 

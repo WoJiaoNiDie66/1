@@ -1,4 +1,5 @@
 // Assets/Scripts/Core/UIManager.cs
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,6 +11,7 @@ public class ActiveGameUIManager : MonoBehaviour
 {
 
     public static UnityAction<(float,float,float,float,float,float)> onPlayerStatsChanged;
+    public static UnityAction<int> onPlayerHealPotionUsed;
     public static UnityAction onPlayerStatsReset;
     public static bool isPaused = false;
 
@@ -30,10 +32,21 @@ public class ActiveGameUIManager : MonoBehaviour
     [SerializeField]
     private ElementUI[] elementUIs;
 
+    [SerializeField]
+    private PotionUI potionUI;
+
     private void Awake()
     {
         onPlayerStatsChanged += UpdateElementUIs;
         onPlayerStatsReset += InitializeElementUIs;
+        onPlayerHealPotionUsed += UpdateHealPotionUI;
+    }
+
+    private void OnDestroy()
+    {
+        onPlayerStatsChanged -= UpdateElementUIs;
+        onPlayerStatsReset -= InitializeElementUIs;
+        onPlayerHealPotionUsed -= UpdateHealPotionUI;
     }
 
     private void Start()
@@ -112,6 +125,7 @@ public class ActiveGameUIManager : MonoBehaviour
         elementUIs[0].ResetUI();
         elementUIs[1].ResetUI();
         elementUIs[2].ResetUI();
+        potionUI.ResetUI();
     }
 
     private void UpdateElementUIs(
@@ -125,4 +139,17 @@ public class ActiveGameUIManager : MonoBehaviour
         elementUIs[1].UpdateUI(a.currentFocus, a.maxFocus);
         elementUIs[2].UpdateUI(a.currentStamina, a.maxStamina);
     }
+
+    private void UpdateHealPotionUI(int charge)
+    {
+        if(potionUI == null)
+        {
+            Debug.LogError("Potion UI reference is missing in ActiveGameUIManager");
+            return;
+        }
+
+        potionUI.UpdateUI(charge);
+    }
+
+
 }

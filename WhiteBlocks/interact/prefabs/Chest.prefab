@@ -51,7 +51,12 @@ MonoBehaviour:
   closedAngleX: 50
   openAngleX: -1.612
   openSpeed: 3
-  interactKey: 101
+  interactKey: 102
+  chestData: {fileID: 0}
+  floatHeight: 1.8
+  spinSpeed: 360
+  spriteScale: 2
+  spawnOffset: {x: 0, y: 0.5, z: 0}
 --- !u!65 &3581663311686521466
 BoxCollider:
   m_ObjectHideFlags: 0

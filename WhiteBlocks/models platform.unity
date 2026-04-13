@@ -504,6 +504,7 @@ MonoBehaviour:
     m_Bits: 0
   allowMultiHit: 1
   singleHitPerTarget: 1
+  equipmentDamageMultiplier: 1
   showDebug: 1
   debugColor: {r: 1, g: 0, b: 0, a: 0.3}
   currentPendingRewardList: []
@@ -3097,7 +3098,7 @@ PrefabInstance:
     - target: {fileID: 1601699197128053446, guid: 4982541364881884490546c7e34d041c,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -8.356849
+      value: 152
       objectReference: {fileID: 0}
     - target: {fileID: 1601699197128053446, guid: 4982541364881884490546c7e34d041c,
         type: 3}
@@ -3107,7 +3108,7 @@ PrefabInstance:
     - target: {fileID: 1601699197128053446, guid: 4982541364881884490546c7e34d041c,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 9
+      value: 305
       objectReference: {fileID: 0}
     - target: {fileID: 1601699197128053446, guid: 4982541364881884490546c7e34d041c,
         type: 3}
@@ -3148,6 +3149,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: CwcPlayer_A0 (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 5824429484337335921, guid: 4982541364881884490546c7e34d041c,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -6133,10 +6139,15 @@ PrefabInstance:
       propertyPath: m_Name
       value: MainCamera (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 3784416366341272540, guid: 6cad9c8049d0ec34d8b1ec25c6bec8c0,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6745605226069286002, guid: 6cad9c8049d0ec34d8b1ec25c6bec8c0,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -8.156849
+      value: 152.2
       objectReference: {fileID: 0}
     - target: {fileID: 6745605226069286002, guid: 6cad9c8049d0ec34d8b1ec25c6bec8c0,
         type: 3}
@@ -6146,7 +6157,7 @@ PrefabInstance:
     - target: {fileID: 6745605226069286002, guid: 6cad9c8049d0ec34d8b1ec25c6bec8c0,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 5
+      value: 301
       objectReference: {fileID: 0}
     - target: {fileID: 6745605226069286002, guid: 6cad9c8049d0ec34d8b1ec25c6bec8c0,
         type: 3}
@@ -6367,7 +6378,7 @@ PrefabInstance:
     - target: {fileID: 2219937047914327219, guid: f3c836c48776dd140bb94c952ec63ba6,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -8.156849
+      value: 152.2
       objectReference: {fileID: 0}
     - target: {fileID: 2219937047914327219, guid: f3c836c48776dd140bb94c952ec63ba6,
         type: 3}
@@ -6377,7 +6388,7 @@ PrefabInstance:
     - target: {fileID: 2219937047914327219, guid: f3c836c48776dd140bb94c952ec63ba6,
         type: 3}
       propertyPath: m_LocalPosition.z
-      value: 5
+      value: 301
       objectReference: {fileID: 0}
     - target: {fileID: 2219937047914327219, guid: f3c836c48776dd140bb94c952ec63ba6,
         type: 3}
@@ -6423,6 +6434,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: CwcPlayerFollowCamera (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 5249131317553078094, guid: f3c836c48776dd140bb94c952ec63ba6,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -13415,6 +13431,7 @@ MonoBehaviour:
     m_Bits: 0
   allowMultiHit: 1
   singleHitPerTarget: 1
+  equipmentDamageMultiplier: 1
   showDebug: 1
   debugColor: {r: 1, g: 0, b: 0, a: 0.3}
   currentPendingRewardList: []
@@ -17417,6 +17434,7 @@ MonoBehaviour:
     m_Bits: 0
   allowMultiHit: 1
   singleHitPerTarget: 1
+  equipmentDamageMultiplier: 1
   showDebug: 1
   debugColor: {r: 1, g: 0, b: 0, a: 0.3}
   currentPendingRewardList: []
@@ -17794,6 +17812,7 @@ MonoBehaviour:
     m_Bits: 0
   allowMultiHit: 1
   singleHitPerTarget: 1
+  equipmentDamageMultiplier: 1
   showDebug: 1
   debugColor: {r: 1, g: 0, b: 0, a: 0.3}
   currentPendingRewardList: []
@@ -28677,6 +28696,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2084189096066662247, guid: 43f96e54927a38e439593717feb12a89,
+        type: 3}
+      propertyPath: interactKey
+      value: 102
+      objectReference: {fileID: 0}
     - target: {fileID: 2533359246995548253, guid: 43f96e54927a38e439593717feb12a89,
         type: 3}
       propertyPath: m_Name
@@ -28745,6 +28769,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 5799264750440630898, guid: 0758b9d85950caf4eb72e1ae67ce797f,
+        type: 3}
+      propertyPath: interactKey
+      value: 102
+      objectReference: {fileID: 0}
     - target: {fileID: 7073039814409574321, guid: 0758b9d85950caf4eb72e1ae67ce797f,
         type: 3}
       propertyPath: m_Name
@@ -28840,6 +28869,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 3543176335877082733, guid: 5149816a743ef5f4d94b51e3fbb23517,
+        type: 3}
+      propertyPath: interactKey
+      value: 102
+      objectReference: {fileID: 0}
     - target: {fileID: 4939038833232240678, guid: 5149816a743ef5f4d94b51e3fbb23517,
         type: 3}
       propertyPath: m_Name
@@ -29535,6 +29569,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalPosition.y
       value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 8892477761271672729, guid: 90f2f394f23c23a428e57c1f9c3ebd34,
+        type: 3}
+      propertyPath: interactKey
+      value: 102
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

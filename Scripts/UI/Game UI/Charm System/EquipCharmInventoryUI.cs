@@ -188,9 +188,16 @@ public class EquipCharmInventoryUI : SelectorManager
 
     private void EquipCharm(Charm charm)
     {
+        //Debug.Log($"Before Next Empty Slot: {nextEmptySlot}");
+
         if (nextEmptySlot >= uis.Length)
         {
             Debug.LogError("The slots for equipping charms are full.");
+            return;
+        }else if(nextEmptySlot < 0)
+        {
+            Debug.LogError("Next empty slot index cannot be negative.");
+            return;
         }
 
         var slotUI = uis[nextEmptySlot] as EquipCharmSlotUI;
@@ -215,6 +222,9 @@ public class EquipCharmInventoryUI : SelectorManager
         {
             Debug.Log("The slot is occupied.");
         }
+
+        //Debug.Log($"After Next Empty Slot: {nextEmptySlot}");
+
     }
 
     public void InitializeEquipCharmSlots(Charm charm)
@@ -271,6 +281,8 @@ public class EquipCharmInventoryUI : SelectorManager
 
     private void RemoveCharm()
     {
+        //Debug.Log($"Before Next Empty Slot: {nextEmptySlot}");
+
         if (CharmManager.EquippedCharmMode)
         {
             var slotUI1 = uis[currentIndex] as EquipCharmSlotUI;
@@ -286,7 +298,6 @@ public class EquipCharmInventoryUI : SelectorManager
                 nextEmptySlot--;
             }
 
-            nextEmptySlot--;
             for(int i = 0; i < uis.Length-1; i++)
             {
                 slotUI1 = uis[i] as EquipCharmSlotUI;
@@ -301,6 +312,8 @@ public class EquipCharmInventoryUI : SelectorManager
             }
 
         }
+
+        //Debug.Log($"After Next Empty Slot: {nextEmptySlot}");
     }
 
     private void RemoveCharm(Charm charm)

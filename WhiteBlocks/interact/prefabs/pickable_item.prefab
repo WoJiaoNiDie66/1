@@ -9684,7 +9684,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c3b67a64cd23aa044b5996c720fe1748, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  interactKey: 101
+  interactKey: 102
+  canPickup: 1
 --- !u!65 &2528348428869004838
 BoxCollider:
   m_ObjectHideFlags: 0

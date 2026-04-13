@@ -13,7 +13,7 @@ public class DoorController : MonoBehaviour
     public float door05OpenAngle = 90f;  // 注意：雙扇門通常是一正一負，如果兩扇都要 -90 請自行修改
 
     public float openSpeed = 2f;
-    public KeyCode interactKey = KeyCode.E;
+    public KeyCode interactKey = KeyCode.F;
     public bool playerInteractable = true; // 是否允許玩家互動
 
     private bool isOpen = false;

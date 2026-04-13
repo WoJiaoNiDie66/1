@@ -48,7 +48,7 @@ public class MSB_Jump_1 : StateMachineBehaviour
         _playerMain._combatSystem.currentPassiveEffectActive = false; // control passive effect, can be used in UpdatePassiveEffects to handle passive effects that have a duration, like poison or regen
         // _playerInput._combatSystem.curKB_getHit %= 2;
         _playerMain.nextStateID = 0; // set next state ID, can be used in PlayerMain_A0 to trigger certain events in next state
-        _playerMain._combatSystem.SetInvincible(false, false, true, false, true, false, false); // set invincibility, can be used in Hurtbox to ignore damage
+        _playerMain._combatSystem.SetInvincible(false, false, true, false, true, false, true); // set invincibility, can be used in Hurtbox to ignore damage
         _playerMain._anim_VV = Mathf.Sqrt(1f * -1f * _playerMain.Gravity);// reset move and look direction, can be used in PlayerMain_A0 to control the character's movement and rotation
         _playerMain._combatSystem.DeactivateAllHitboxes();
         // vfx

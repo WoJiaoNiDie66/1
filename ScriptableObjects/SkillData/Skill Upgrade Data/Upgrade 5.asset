@@ -19,4 +19,4 @@ MonoBehaviour:
   skillType: 0
   value: 0
   locked: 1
-  unlockable: 0
+  unlockable: 1

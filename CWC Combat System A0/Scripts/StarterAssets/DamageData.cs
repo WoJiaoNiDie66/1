@@ -89,4 +89,30 @@ public class DamageData : MonoBehaviour
         new SpecialWeakness { Name = "GroundAttackAnti", Value = 1f }
     };
     public GameObject owner; // Who dealt damage
+
+    public DamageData Clone()
+    {
+        DamageData clone = (DamageData)this.MemberwiseClone();
+        clone.damageTypes = new List<DamageType>();
+        foreach (var dt in this.damageTypes)
+        {
+            clone.damageTypes.Add(new DamageType { Name = dt.Name, Value = dt.Value });
+        }
+        clone.poiseDamageTypes = new List<DamageType>();
+        foreach (var pdt in this.poiseDamageTypes)
+        {
+            clone.poiseDamageTypes.Add(new DamageType { Name = pdt.Name, Value = pdt.Value });
+        }
+        clone.statusEffects = new List<StatusEffect>();
+        foreach (var se in this.statusEffects)
+        {
+            clone.statusEffects.Add(new StatusEffect { Name = se.Name, Value = se.Value });
+        }
+        clone.specialWeaknesses = new List<SpecialWeakness>();
+        foreach (var sw in this.specialWeaknesses)
+        {
+            clone.specialWeaknesses.Add(new SpecialWeakness { Name = sw.Name, Value = sw.Value });
+        }
+        return clone;
+    }
 }

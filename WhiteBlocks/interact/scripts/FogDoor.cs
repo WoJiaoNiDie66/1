@@ -10,7 +10,7 @@ public class FogDoor : MonoBehaviour
     public BoxCollider invisibleWall; 
 
     [Header("互動設定")]
-    public KeyCode interactKey = KeyCode.E;
+    public KeyCode interactKey = KeyCode.F;
 
     private bool playerInRange = false;
     private bool isOpened = false; // 防止重複觸發

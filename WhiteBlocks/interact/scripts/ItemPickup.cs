@@ -3,7 +3,8 @@ using UnityEngine;
 public class ItemPickup : MonoBehaviour
 {
     [Header("互動設定")]
-    public KeyCode interactKey = KeyCode.E; // 互動按鍵
+    public KeyCode interactKey = KeyCode.F; // 互動按鍵
+    public bool canPickup = true; // 是否可以被拾取（可以在 Inspector 中控制）
 
     private bool playerInRange = false;
 
@@ -29,6 +30,17 @@ public class ItemPickup : MonoBehaviour
         // 🌟 最終指令：銷毀整個 Game Object
         // 這會同時銷毀它底下的子物件（例如那個 Particle System）
         Destroy(gameObject);
+    }
+
+    public void TruePickup()
+    {
+        canPickup = true;
+    }
+
+    // Set Pickable
+    public void SetPickable(bool value)
+    {
+        canPickup = value;
     }
 
     // --- 玩家感應偵測 ---

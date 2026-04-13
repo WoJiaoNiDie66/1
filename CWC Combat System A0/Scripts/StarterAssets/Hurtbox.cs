@@ -72,6 +72,7 @@ public class Hurtbox : MonoBehaviour
     
     public void ReceiveDamage(DamageData damageData)
     {
+        damageData = damageData.Clone(); // Clone to avoid modifying original data
         // Apply damage multiplier
         for (int i = 0; i < damageData.damageTypes.Count; i++)
         {

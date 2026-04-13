@@ -47,8 +47,8 @@ public class PlayerMovement : MonoBehaviour
         }
 
         // 取得相機相對輸入方向
-        float horizontalInput = InputManager.GetHorizontalInput();
-        float verticalInput = InputManager.GetVerticalInput();
+        float horizontalInput = Input.GetAxisRaw("Horizontal");
+        float verticalInput = Input.GetAxisRaw("Vertical");
 
         // 根據相機方向計算移動向量
         Vector3 cameraForward = cameraTransform.forward;

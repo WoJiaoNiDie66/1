@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.InputSystem;
 
 /// <summary>
 /// This is used to manage the dialogs.
@@ -36,6 +37,9 @@ public class DialogManager : MonoBehaviour
     [SerializeField]
     private TextMeshProUGUI openInteractUI;
 
+    [SerializeField]
+    private PlayerInput playerInput;
+
     private void Awake()
     {
         if(Instance == null)
@@ -47,7 +51,8 @@ public class DialogManager : MonoBehaviour
     // Start is called before the first frame update
     private void Start()
     {
-        _dialogBehaviour.BindExternalFunction("Test",Test);
+        _dialogBehaviour.BindExternalFunction("Test1",Test1);
+        _dialogBehaviour.BindExternalFunction("Test2",Test2);
     }
 
     /// <summary>
@@ -56,7 +61,15 @@ public class DialogManager : MonoBehaviour
     /// <param name="graph"></param>
     public void StartDialog(DialogNodeGraph graph)
     {
+        playerInput.SwitchCurrentActionMap("Menu");
+        Cursor.lockState = CursorLockMode.None;
         _dialogBehaviour.StartDialog(graph);
+    }
+
+    public void EndDialog()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+        playerInput.SwitchCurrentActionMap("Player");
     }
 
     public void OpenMessage(string text)
@@ -71,9 +84,15 @@ public class DialogManager : MonoBehaviour
     }
 
     //Place all the External function below.
-    private void Test()
+    private void Test1()
     {
-        Debug.Log("External function has been invoked.");
+        Debug.Log("External function 1 has been invoked.");
+        NPC.ResetNPCInteraction();
+    }
+
+    private void Test2()
+    {
+        Debug.Log("External function 2 has been invoked.");
         NPC.ResetNPCInteraction();
     }
 

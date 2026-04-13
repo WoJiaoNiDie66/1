@@ -51,6 +51,7 @@ public class SkillNodeSelector : MonoBehaviour
             {
                 Debug.Log("Upgrade");
                 currentNode.Upgrade();
+                UIHover();
             }
                 
         }

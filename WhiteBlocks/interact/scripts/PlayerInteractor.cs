@@ -8,7 +8,7 @@ public class PlayerInteractor : MonoBehaviour
     void Update()
     {
         // 假设按下“E”键进行交互
-        if (Input.GetKeyDown(KeyCode.E))
+        if (Input.GetKeyDown(KeyCode.F))
         {
             TryInteract();
         }

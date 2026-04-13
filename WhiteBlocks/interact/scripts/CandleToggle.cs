@@ -23,7 +23,7 @@ public class CandleToggle : MonoBehaviour
     void Update()
     {
         // 當玩家在範圍內，並且按下 E 鍵
-        if (playerInRange && Input.GetKeyDown(KeyCode.E))
+        if (playerInRange && Input.GetKeyDown(KeyCode.F))
         {
             // 反轉狀態（開變關，關變開）
             isOn = !isOn; 

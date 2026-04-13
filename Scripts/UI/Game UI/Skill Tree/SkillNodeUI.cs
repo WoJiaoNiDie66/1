@@ -142,18 +142,17 @@ public class SkillNodeUI : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
     public void UnHighlight()
     {
         //if (!_skillNode.SkillData.Unlockable)
-        if(!_skillNode.Unlockable)
+        if (_skillNode.Unlockable && !_skillNode.IsLocked)
         {
-            _skillBorder.sprite = _borderSprites[3];
+            _skillBorder.sprite = _borderSprites[1];
         }
-        //else if (_skillNode.SkillData.IsLocked)
-        else if(_skillNode.IsLocked)
+        else if (_skillNode.Unlockable && _skillNode.IsLocked)
         {
             _skillBorder.sprite = _borderSprites[2];
         }
         else
         {
-            _skillBorder.sprite = _borderSprites[1];
+            _skillBorder.sprite = _borderSprites[3];
         }
     }
 }

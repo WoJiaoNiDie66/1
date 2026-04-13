@@ -70,7 +70,7 @@ public class PlayerCombat : MonoBehaviour
     void Update()
     {
         // 處理鎖定輸入
-        if (InputManager.GetLockOnInput())
+        if (Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift))
         {
             FindAndLockEnemy();
         }
@@ -79,7 +79,7 @@ public class PlayerCombat : MonoBehaviour
         UpdateLockOnIndicator();
 
         // 若輸入滑步且有鎖定敵人，並且目前未在滑步中，則啟動滑步
-        if (InputManager.GetDashInput() && lockedEnemy != null && !playerState.IsDashing)
+        if (Input.GetKeyDown(KeyCode.Z) && lockedEnemy != null && !playerState.IsDashing)
         {
             DashToLockedEnemy();
         }

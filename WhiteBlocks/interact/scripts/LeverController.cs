@@ -35,7 +35,7 @@ public class LeverController : MonoBehaviour
     void Update()
     {
         // 只有在「玩家在範圍內」且「按下 E 鍵」時觸發
-        if (playerInRange && Input.GetKeyDown(KeyCode.E))
+        if (playerInRange && Input.GetKeyDown(KeyCode.F))
         {
             ToggleLever();
         }

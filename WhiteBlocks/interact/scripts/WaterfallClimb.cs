@@ -7,7 +7,7 @@ public class WaterfallClimb : MonoBehaviour
     [Header("瀑布攀爬設定")]
     [Tooltip("攀爬速度 (建議比梯子慢一點)")]
     public float climbSpeed = 2.0f; 
-    public KeyCode interactKey = KeyCode.E;
+    public KeyCode interactKey = KeyCode.F;
 
     [Header("邊界設定 (必填)")]
     [Tooltip("請拖入代表瀑布最頂端的空物件")]

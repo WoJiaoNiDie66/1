@@ -11,6 +11,9 @@ public class MSB_HP_3 : StateMachineBehaviour
     public int currentInfo = -1;
 
     public bool debugMode = false;
+    private const int MAXHEALCHARGES = 3;
+    private int currentHealCharges = MAXHEALCHARGES;
+
     // This function is called when the state is entered
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
@@ -54,8 +57,10 @@ public class MSB_HP_3 : StateMachineBehaviour
         _playerMain._combatSystem.SetInvincible(false, false, false, false, false, false, false); // set invincibility, can be used in Hurtbox to ignore damage
         _playerMain._anim_VV = -1f; // reset move and look direction, can be used in PlayerMain_A0 to control the character's movement and rotation
         _playerMain._combatSystem.DeactivateAllHitboxes();
-        if (_playerMain._combatSystem.CanHeal())
+        if (_playerMain._combatSystem.CanHeal() && currentHealCharges > 0)
         {
+            currentHealCharges = Mathf.Max(currentHealCharges-1,0);
+            ActiveGameUIManager.onPlayerHealPotionUsed?.Invoke(currentHealCharges);
             _playerMain._combatSystem.PushVE(_playerMain._combatSystem.VEDatas[0]); // 0 is heal
         }
         // other function

@@ -45,10 +45,10 @@ public class SkillSystem : MonoBehaviour
     private void HandleSkillInput()
     {
         // 偵測技能輸入並嘗試施放
-        if (InputManager.GetSkill1Input()) AttemptCastSkill(0);
-        else if (InputManager.GetSkill2Input()) AttemptCastSkill(1);
-        else if (InputManager.GetSkill3Input()) AttemptCastSkill(2);
-        else if (InputManager.GetSkill4Input()) AttemptCastSkill(3);
+        //if (Input.GetKeyDown(KeyCode.Q)) AttemptCastSkill(0);
+        //else if (Input.GetKeyDown(KeyCode.W)) AttemptCastSkill(1);
+        //else if (Input.GetKeyDown(KeyCode.E)) AttemptCastSkill(2);
+        //else if (Input.GetKeyDown(KeyCode.R)) AttemptCastSkill(3);
     }
 
     /// <summary>

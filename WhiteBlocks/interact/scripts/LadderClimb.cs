@@ -5,7 +5,7 @@ public class LadderClimb : MonoBehaviour
 {
     [Header("攀爬設定")]
     public float climbSpeed = 3f;      
-    public KeyCode interactKey = KeyCode.E; 
+    public KeyCode interactKey = KeyCode.F; 
 
     [Header("對齊與邊界設定")]
     public bool snapToCenter = true; 

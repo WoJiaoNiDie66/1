@@ -25,15 +25,15 @@ public class SkillNode
 
     public void ApplyUpgrade()
     {
-        if (!_skillData.IsLocked)
+        if (!IsLocked)
         {
             Debug.Log("Skill has already been upgraded");
             return;
         }
 
-        SetLocked(true);
+        SetLocked(false);
         //_skillData.SetLocked(false);
-        if (!_skillData.Unlockable && _skillData.IsLocked)
+        if (Unlockable && !IsLocked)
         {
             Debug.Log("Unlocking");
             foreach (SkillNodeUI nodeUI in children)
