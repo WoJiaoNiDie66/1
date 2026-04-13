@@ -16,6 +16,6 @@ MonoBehaviour:
   itemSprite: {fileID: 21300000, guid: 071eff5c72b4c264c930dc6dea5b212f, type: 3}
   itemDescription: 14% reduction
   itemID: 6
-  unlocked: 1
+  unlocked: 0
   itemType: 1
   equipmentType: 2

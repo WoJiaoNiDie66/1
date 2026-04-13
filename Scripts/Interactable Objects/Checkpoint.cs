@@ -45,17 +45,29 @@ public class Checkpoint : MonoBehaviour
 
         if (!playerInRange) return;
 
+        // Auto-save and activate when walking into an undiscovered checkpoint
         if (!isActivated)
         {
             isActivated = true;
             CheckpointManager.Instance.RegisterCheckpoint(this);
-            Debug.Log("Saved!");
+            
+            // Trigger Save
+            if (SaveManager.Instance != null)
+            {
+                SaveManager.Instance.SaveGame(this);
+            }
         }
 
-        // Fix: Prevent opening if it's already open, preventing double-execution bugs
+        // Open Checkpoint Panel / Manual Save
         if (Input.GetKeyDown(KeyCode.T) && !CheckpointPanel.Instance.IsOpen)
         {
             CheckpointPanel.Instance.Open(this);
+            
+            // Optionally, save the game again every time they open the fast travel menu
+            if (SaveManager.Instance != null)
+            {
+                SaveManager.Instance.SaveGame(this);
+            }
         }
     }
 
@@ -79,9 +91,14 @@ public class Checkpoint : MonoBehaviour
             playerInRange = false;
     }
 
-    // Fix: Allows the Manager to manually clear this state
     public void ResetRange()
     {
         playerInRange = false;
+    }
+
+    // --- NEW METHOD FOR LOADING ---
+    public void SetActivatedState(bool state)
+    {
+        isActivated = state;
     }
 }

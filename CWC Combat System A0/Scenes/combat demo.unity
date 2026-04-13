@@ -1722,6 +1722,12 @@ PrefabInstance:
       propertyPath: playerInput
       value: 
       objectReference: {fileID: 1965275600}
+    - target: {fileID: 5774253855893031281, guid: f4cf60d30ceb3e54bb989c1721319b90,
+        type: 3}
+      propertyPath: item
+      value: 
+      objectReference: {fileID: 11400000, guid: b31f426424507e440b04aed7550a6893,
+        type: 2}
     - target: {fileID: 5815995007818460215, guid: f4cf60d30ceb3e54bb989c1721319b90,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -2776,50 +2782,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 716863998}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1506790861
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1506790863}
-  - component: {fileID: 1506790862}
-  m_Layer: 0
-  m_Name: CheckpointManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1506790862
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1506790861}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 09f1f135e98baf047801eea67e474eaf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!4 &1506790863
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1506790861}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6, y: 21.358028, z: 19.53}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &1596280036 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2841997691653951238, guid: ed3ecba7ad1525e43bbf29e0cad227fa,
@@ -2935,6 +2897,121 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1965275598}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1957966152
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1957966154}
+  - component: {fileID: 1957966153}
+  - component: {fileID: 1957966158}
+  - component: {fileID: 1957966157}
+  - component: {fileID: 1957966156}
+  - component: {fileID: 1957966155}
+  m_Layer: 0
+  m_Name: CheckpointManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1957966153
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1957966152}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09f1f135e98baf047801eea67e474eaf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &1957966154
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1957966152}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -22.485842, y: 15.278037, z: 63.372902}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1957966155
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1957966152}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8a71bf39c033474986c0c05d1374f96, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  allItems:
+  - {fileID: 11400000, guid: 2e5d2064d1b0cc54f90d3bf071918ff0, type: 2}
+  - {fileID: 11400000, guid: 05922cbb19dfc994a84000c4d1501c2a, type: 2}
+  - {fileID: 11400000, guid: b1e2afd88dadeaf40b1b2553a5c788bb, type: 2}
+  - {fileID: 11400000, guid: 3a0bc439c6744ef4d81cfa32c64f06e0, type: 2}
+  - {fileID: 11400000, guid: f7543eb149a459145aeeba5b0eb5e0a7, type: 2}
+  - {fileID: 11400000, guid: a3d4f4c1c7a716547941e04cc30c578d, type: 2}
+  - {fileID: 11400000, guid: f770b6f0843db7a49a8e1c7cbefe931c, type: 2}
+  - {fileID: 11400000, guid: cee3e3ab51c124047bb5d7e0956ca73e, type: 2}
+  - {fileID: 11400000, guid: b3925efadbea8dc4aaedc03642e7f5de, type: 2}
+  - {fileID: 11400000, guid: dabf2a174c4c9ed488b6dda3258071ef, type: 2}
+  resetAllFlagsOnAwake: 1
+--- !u!114 &1957966156
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1957966152}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8139de58bf8408c47a25c7f7376565d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  allCharms:
+  - {fileID: 11400000, guid: bf38824fa35169a4999179003e5bfa92, type: 2}
+  - {fileID: 11400000, guid: 93233b2f39865c843a4778a336278d7c, type: 2}
+  - {fileID: 11400000, guid: 249cf617cc725dd43be135221c6ac010, type: 2}
+  - {fileID: 11400000, guid: 6b46f1e26b5f22341a7fa615b2c1328c, type: 2}
+  - {fileID: 11400000, guid: 69e8a77b915ce0a4682f5a5eea6c141f, type: 2}
+  resetAllFlagsOnAwake: 1
+--- !u!114 &1957966157
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1957966152}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 840b3d35e0ba7f247aed9d6d146b985e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1957966158
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1957966152}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6301367f285014438f1664efb46072c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1965275598
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3104,5 +3181,5 @@ SceneRoots:
   - {fileID: 1750121837}
   - {fileID: 1208240938}
   - {fileID: 1399590981}
-  - {fileID: 1506790863}
   - {fileID: 662831603}
+  - {fileID: 1957966154}

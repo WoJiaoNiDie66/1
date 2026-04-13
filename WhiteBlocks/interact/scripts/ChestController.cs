@@ -14,7 +14,7 @@ public class ChestController : MonoBehaviour
 
     [Header("互動設定")]
     public float openSpeed = 3f;
-    public KeyCode interactKey = KeyCode.E;
+    public KeyCode interactKey = KeyCode.F;
 
     [Header("寶箱內容")]
     [Tooltip("Assign a ChestData ScriptableObject to define rewards")]
@@ -33,6 +33,13 @@ public class ChestController : MonoBehaviour
 
     private float defaultY;
     private float defaultZ;
+
+    [Header("Save Data")]
+    [Tooltip("Leave empty to auto-generate based on position")]
+    [SerializeField] private string chestID;
+
+    public string ChestID => string.IsNullOrEmpty(chestID) ? $"{gameObject.name}_{transform.position}" : chestID;
+    public bool HasBeenOpened => hasBeenOpened;
 
     void Start()
     {
@@ -188,6 +195,23 @@ public class ChestController : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             playerInRange = false;
+        }
+    }
+
+    public void LoadState(bool opened)
+    {
+        if (opened)
+        {
+            isOpen = true;
+            hasBeenOpened = true;
+            
+            if (chestLid != null)
+            {
+                // Instantly force visual rotation so the player doesn't see it opening when loading
+                float y = defaultY == 0 ? chestLid.localEulerAngles.y : defaultY;
+                float z = defaultZ == 0 ? chestLid.localEulerAngles.z : defaultZ;
+                chestLid.localRotation = Quaternion.Euler(openAngleX, y, z);
+            }
         }
     }
 }

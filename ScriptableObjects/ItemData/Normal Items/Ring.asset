@@ -15,5 +15,6 @@ MonoBehaviour:
   itemName: Ring
   itemSprite: {fileID: -1642801483, guid: 82fb946017250bd48ab1e110e91c70a6, type: 3}
   itemDescription: A ring with magical power!
-  itemID: 8
-  unlocked: 1
+  itemID: 10
+  unlocked: 0
+  itemType: 0

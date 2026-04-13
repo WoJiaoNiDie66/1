@@ -15,6 +15,6 @@ MonoBehaviour:
   rewardPool:
   - rewardType: 1
     charm: {fileID: 0}
-    item: {fileID: 11400000, guid: 2e5d2064d1b0cc54f90d3bf071918ff0, type: 2}
+    item: {fileID: 11400000, guid: b31f426424507e440b04aed7550a6893, type: 2}
     weight: 0
   rewardCount: 1

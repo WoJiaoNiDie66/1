@@ -9,13 +9,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c4187dd387d75a84788e5d0e10c6ea92, type: 3}
+  m_Script: {fileID: 11500000, guid: bc81120750d2c6c4cb508591abe2581d, type: 3}
   m_Name: 0
   m_EditorClassIdentifier: 
-  itemName: Leather Helmet
-  itemSprite: {fileID: 21300000, guid: 93c3909ee5651e0468f14fd15d73d9d5, type: 3}
-  itemDescription: 5% damage reduction
-  itemID: 0
-  unlocked: 0
-  itemType: 1
-  equipmentType: 0
+  charmName: Mana Crystal
+  charmSprite: {fileID: 1435577170, guid: 4df8b295093ec5342bbf4fcc3824d606, type: 3}
+  charmCost: 2
+  charmDescription: Run Faster!
+  charmID: 0
+  unlocked: 1
+  equipped: 0
+  equippedSlotID: -1
