@@ -38,27 +38,15 @@ public class CharmSaveBridge : MonoBehaviour
     {
         List<string> result = new List<string>();
         
-        CharmInventoryUI charmUI = FindObjectOfType<CharmInventoryUI>(true);
-
-        if (charmUI != null)
+        // We only grab what the SOs currently say
+        foreach (var charm in allCharms)
         {
-            List<Charm> equippedCharms = charmUI.GetEquippedCharms();
-            if (equippedCharms != null)
+            if (charm != null && charm.Equipped)
             {
-                foreach (Charm charm in equippedCharms)
-                {
-                    if (charm != null)
-                    {
-                        result.Add(ScriptableObjectRuntimeSaveUtil.GetId(charm));
-                    }
-                }
+                result.Add(ScriptableObjectRuntimeSaveUtil.GetId(charm));
             }
         }
-        else
-        {
-            Debug.LogWarning("CharmInventoryUI could not be found in the scene! Equipped charms were not saved.");
-        }
-
+        
         return result;
     }
 
@@ -67,48 +55,27 @@ public class CharmSaveBridge : MonoBehaviour
         HashSet<string> unlockedSet = new HashSet<string>(savedUnlocked ?? new List<string>());
         HashSet<string> equippedSet = new HashSet<string>(savedEquipped ?? new List<string>());
 
-        CharmInventoryUI charmUI = FindObjectOfType<CharmInventoryUI>(true);
-
         foreach (var charm in allCharms)
         {
             if (charm == null) continue;
 
             string id = ScriptableObjectRuntimeSaveUtil.GetId(charm);
             
-            // Set Unlocked state
+            // Re-apply states purely to the ScriptableObjects. The UI will pull from this when it enables.
             ScriptableObjectRuntimeSaveUtil.SetUnlocked(charm, unlockedSet.Contains(id));
-
-            // Delegate equipping back to the UI Manager so abilities and costs apply correctly
-            if (equippedSet.Contains(id))
-            {
-                charm.SetEquipped(true); // Still update the SO state
-                if (charmUI != null)
-                    charmUI.ForceEquipCharmFromSave(charm);
-            }
-            else
-            {
-                charm.SetEquipped(false); // Still update the SO state
-                if (charmUI != null)
-                    charmUI.ForceUnequipCharmFromSave(charm);
-            }
+            charm.SetEquipped(equippedSet.Contains(id));
         }
         OnCharmStateApplied?.Invoke();
     }
 
     public void ResetAllRuntimeUnlockedFlags()
     {
-        CharmInventoryUI charmUI = FindObjectOfType<CharmInventoryUI>(true);
-
         foreach (var charm in allCharms)
         {
             if (charm == null) continue;
             
             ScriptableObjectRuntimeSaveUtil.SetUnlocked(charm, false);
             charm.SetEquipped(false);
-
-            // Cleanly force-unequip in UI to clear old costs/effects from previous saves
-            if (charmUI != null)
-                charmUI.ForceUnequipCharmFromSave(charm);
         }
     }
 }

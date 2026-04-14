@@ -7,34 +7,102 @@ using UnityEngine.UIElements;
 
 public class CharmInventoryUI : SelectorManager
 {
-    [SerializeField]
-    private CharmDescriptor charmDescriptor;
-
-    [SerializeField]
-    private Scrollbar charmScrollbar;
-
-    [SerializeField]
-    private Transform viewPort;
-
-    //This variable is for checking if the selected charm slot is out of the viewport.
-    //We only look at the vertical distance
-    [SerializeField]
-    private float slotMaxDistance;
-
-    [SerializeField]
-    private float sliderMoveScale;
+    [SerializeField] private CharmDescriptor charmDescriptor;
+    [SerializeField] private Scrollbar charmScrollbar;
+    [SerializeField] private Transform viewPort;
+    [SerializeField] private float slotMaxDistance;
+    [SerializeField] private float sliderMoveScale;
 
     protected override void Start()
     {
         InitializeUI();
+        
+        // Listen for when the SaveManager finishes loading data
+        CharmSaveBridge.OnCharmStateApplied += TriggerSync;
+        
+        // Run it once on Start just in case it loaded before this script woke up
+        TriggerSync(); 
+    }
+
+    protected virtual void OnDestroy()
+    {
+        CharmSaveBridge.OnCharmStateApplied -= TriggerSync;
+    }
+
+    private void TriggerSync()
+    {
+        if (gameObject.activeInHierarchy)
+        {
+            StartCoroutine(SyncCoroutine());
+        }
+        else
+        {
+            // If the UI is disabled when loading, we flag it to sync next time it enables
+            pendingSync = true;
+        }
+    }
+
+    private bool pendingSync = false;
+    private void OnEnable()
+    {
+        if (pendingSync)
+        {
+            StartCoroutine(SyncCoroutine());
+        }
+    }
+
+    // Wait until the end of the frame to ensure CharmCostManager is 100% awake!
+    private IEnumerator SyncCoroutine()
+    {
+        yield return new WaitForEndOfFrame();
+        pendingSync = false;
+
+        if (uis == null || uis.Length == 0) yield break;
+
+        for (int i = 0; i < uis.Length; i++)
+        {
+            var slotUI = uis[i] as CharmSlotUI;
+            if (slotUI == null || slotUI.Charm == null) continue;
+
+            // If the Save File says it's equipped, but the UI slot doesn't know it yet
+            if (slotUI.Charm.Equipped && !slotUI.Equipped)
+            {
+                Debug.Log($"<color=cyan>[Save Sync]</color> Force Equipping: {slotUI.Charm.CharmName}");
+                
+                slotUI.OnEquipped(); 
+                CharmManager.OnCharmEquipped?.Invoke(slotUI.Charm); // Tells top UI to populate slot
+
+                if (CharmCostManager.Instance != null)
+                {
+                    CharmCostManager.Instance.IncreaseCost(slotUI.Charm.CharmCost);
+                }
+                else
+                {
+                    Debug.LogError($"<color=red>Could not apply cost for {slotUI.Charm.CharmName}. CharmCostManager.Instance is NULL!</color>");
+                }
+            }
+            // If Save File says it's NOT equipped, but UI slot thinks it is (Cleanup from previous saves)
+            else if (!slotUI.Charm.Equipped && slotUI.Equipped)
+            {
+                Debug.Log($"<color=yellow>[Save Sync]</color> Force Unequipping: {slotUI.Charm.CharmName}");
+                
+                slotUI.OnUnequipped();
+                CharmManager.OnCharmUnequipped?.Invoke(slotUI.Charm);
+
+                if (CharmCostManager.Instance != null)
+                {
+                    CharmCostManager.Instance.DecreaseCost(slotUI.Charm.CharmCost);
+                }
+            }
+        }
     }
 
     private void InitializeUI()
     {
-
         CharmManager.OnCharmUnequipped += UpdateUnequippedCharm;
         CharmManager.OnUIModeChanged += UIHover;
         currentIndex = 0;
+        
         if (uis.Length < 2)
         {
             Debug.LogError("Menu has only one option");
@@ -53,84 +121,63 @@ public class CharmInventoryUI : SelectorManager
         if (Input.GetKeyDown(KeyCode.F))
         {
             var slotUI = uis[currentIndex] as CharmSlotUI;
-            if(slotUI == null)
-            {
-                Debug.LogError("Charm Inventory must only have CharmSlotUI as child");
-                return;
-            }
-            if(slotUI.Charm == null)
-            {
-                Debug.LogWarning("Slot cannot have empty charm");
-                return;
-            }
+            if (slotUI == null || slotUI.Charm == null) return;
             if (!slotUI.Charm.Unlocked)
             {
                 Debug.Log("Charm is not unlocked.");
                 return;
             }
 
-            //Equip
+            // Equip Manually
             if (!slotUI.Equipped && CharmCostManager.Instance.CheckValidCost(slotUI.Charm.CharmCost))
             {
-                Debug.Log($"Equip Charm {slotUI.Charm.CharmName}");
-
+                slotUI.Charm.SetEquipped(true); // Save state update
                 CharmManager.OnCharmEquipped.Invoke(slotUI.Charm);
                 slotUI.OnEquipped();
                 CharmCostManager.Instance.IncreaseCost(slotUI.Charm.CharmCost);
             }
-            //Remove
+            // Remove Manually
             else if (slotUI.Equipped)
             {
-                Debug.Log($"Remove Charm {slotUI.Charm.CharmName}");
+                slotUI.Charm.SetEquipped(false); // Save state update
                 CharmManager.OnCharmUnequipped.Invoke(slotUI.Charm);
                 CharmCostManager.Instance.DecreaseCost(slotUI.Charm.CharmCost);
             }
         }
 
-        
         if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
         {
-            if (currentIndex > 0)
-            {
-                currentIndex--;
-            }
+            if (currentIndex > 0) currentIndex--;
             UIHover();
-
         }
         else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
         {
-            if (currentIndex < uis.Length - 1)
-            {
-                currentIndex++;
-            }
+            if (currentIndex < uis.Length - 1) currentIndex++;
             UIHover();
-
         }
         else if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
         {
             if (currentIndex >= columns)
             {
-            currentIndex = currentIndex - columns;
+                currentIndex -= columns;
             }
-            else if(currentIndex < columns)
+            else if (currentIndex < columns)
             {
                 CharmManager.EquippedCharmMode = true;
                 CharmManager.OnUIModeChanged.Invoke();
             }
             UIHover();
-
         }
         else if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
         {
-            if(!CharmManager.EquippedCharmMode)
+            if (!CharmManager.EquippedCharmMode)
             {
                 if (currentIndex + columns < uis.Length)
                 {
-                    currentIndex = currentIndex + columns;
+                    currentIndex += columns;
                 }
                 UIHover();  
             }
-
         }
     }
 
@@ -145,21 +192,12 @@ public class CharmInventoryUI : SelectorManager
         {
             for (int i = 0; i < uis.Length; i++)
             {
-                if (i != currentIndex)
-                {
-                    uis[i].UnHighlight();
-                }
-                else
-                {
-                    uis[i].Highlight();
-                }
+                if (i != currentIndex) uis[i].UnHighlight();
+                else uis[i].Highlight();
             }
 
             var slotUI = uis[currentIndex] as CharmSlotUI;
-            if (slotUI == null)
-            {
-                return;
-            }
+            if (slotUI == null) return;
 
             if (slotUI.Charm == null || !slotUI.Charm.Unlocked)
             {
@@ -168,61 +206,43 @@ public class CharmInventoryUI : SelectorManager
             else if (slotUI.Charm != null && slotUI.Charm.Unlocked)
             {
                 charmDescriptor.SetDescription(
-                                            slotUI.Charm.CharmName,
-                                            slotUI.Charm.CharmCost,
-                                            slotUI.Charm.CharmDescription,
-                                            slotUI.Charm.CharmSprite
-                                            );
-            }
-            else
-            {
-                Debug.LogWarning("Slot selected but Charm cannot be null.");
+                    slotUI.Charm.CharmName,
+                    slotUI.Charm.CharmCost,
+                    slotUI.Charm.CharmDescription,
+                    slotUI.Charm.CharmSprite
+                );
             }
 
-            float distance = viewPort.position.y-slotUI.transform.position.y;
+            float distance = viewPort.position.y - slotUI.transform.position.y;
             int count = 0;
-            //If the slot is out of viewport
-            if (distance*distance > slotMaxDistance*slotMaxDistance)
+            if (distance * distance > slotMaxDistance * slotMaxDistance)
             {
-                //the slot is lower than the viewport boundary
-                if (distance > 0 && charmScrollbar.value - sliderMoveScale>0)
+                if (distance > 0 && charmScrollbar.value - sliderMoveScale > 0)
                 {
-                    while(distance * distance > slotMaxDistance * slotMaxDistance)
+                    while (distance * distance > slotMaxDistance * slotMaxDistance)
                     {
                         charmScrollbar.value -= sliderMoveScale;
                         distance = viewPort.position.y - slotUI.transform.position.y;
                         count++;
-                        if (count > 10) {
-                            Debug.LogError("Unexpected Issue from Sliding Charm Slot");
-                            break; 
-                        }
+                        if (count > 10) break; 
                     }
                 }
-                else if(distance < 0 && charmScrollbar.value + sliderMoveScale <= 1)//the slot is higher than the viewport boundary
+                else if (distance < 0 && charmScrollbar.value + sliderMoveScale <= 1)
                 {
-                    while(distance * distance > slotMaxDistance * slotMaxDistance)
+                    while (distance * distance > slotMaxDistance * slotMaxDistance)
                     {
                         charmScrollbar.value += sliderMoveScale;
                         distance = viewPort.position.y - slotUI.transform.position.y;
                         count++;
-                        if (count > 10)
-                        {
-                            Debug.LogError("Unexpected Issue from Sliding Charm Slot");
-                            break;
-                        }
+                        if (count > 10) break;
                     }
                 }
             }
-
         }
         else
         {
-            for (int i = 0; i < uis.Length; i++)
-            {
-                    uis[i].UnHighlight();
-            }
+            for (int i = 0; i < uis.Length; i++) uis[i].UnHighlight();
         }
-        
     }
 
     public override void UIHover(SelectionUI ui)
@@ -232,74 +252,51 @@ public class CharmInventoryUI : SelectorManager
             CharmManager.EquippedCharmMode = false;
             CharmManager.OnUIModeChanged.Invoke();
         }
-            var slotUI = ui as CharmSlotUI;
-            if (slotUI == null)
-            {
-                return;
-            }
-            for(int i = 0;i<uis.Length;i++)
-            {
-                CharmSlotUI slot = uis[i] as CharmSlotUI;
-                if (slotUI != slot) slot.UnHighlight();
-                else { 
-                    slot.Highlight(); 
-                    currentIndex = i;
-                }
-            }
-
-            if (slotUI.Charm == null || !slotUI.Charm.Unlocked)
-            {
-                charmDescriptor.ResetDescription();
-            }
-            else if (slotUI.Charm != null && slotUI.Charm.Unlocked)
-            {
-                charmDescriptor.SetDescription(
-                                            slotUI.Charm.CharmName,
-                                            slotUI.Charm.CharmCost,
-                                            slotUI.Charm.CharmDescription,
-                                            slotUI.Charm.CharmSprite
-                                            );
-            }
-            else
-            {
-                Debug.LogError("Slot selected but Charm cannot be null.");
-            }
-
         
+        var slotUI = ui as CharmSlotUI;
+        if (slotUI == null) return;
+        
+        for (int i = 0; i < uis.Length; i++)
+        {
+            CharmSlotUI slot = uis[i] as CharmSlotUI;
+            if (slotUI != slot) slot.UnHighlight();
+            else 
+            { 
+                slot.Highlight(); 
+                currentIndex = i;
+            }
+        }
+
+        if (slotUI.Charm == null || !slotUI.Charm.Unlocked)
+        {
+            charmDescriptor.ResetDescription();
+        }
+        else if (slotUI.Charm != null && slotUI.Charm.Unlocked)
+        {
+            charmDescriptor.SetDescription(
+                slotUI.Charm.CharmName,
+                slotUI.Charm.CharmCost,
+                slotUI.Charm.CharmDescription,
+                slotUI.Charm.CharmSprite
+            );
+        }
     }
 
     public override void UIClicked(SelectionUI ui)
     {
         var slotUI = uis[currentIndex] as CharmSlotUI;
-        if (slotUI == null)
-        {
-            Debug.LogError("Charm Inventory must only have CharmSlotUI as child");
-            return;
-        }
-        if (slotUI.Charm == null)
-        {
-            Debug.LogWarning("Slot cannot have empty charm");
-            return;
-        }
-        if (!slotUI.Charm.Unlocked)
-        {
-            Debug.Log("Charm is not unlocked.");
-            return;
-        }
+        if (slotUI == null || slotUI.Charm == null || !slotUI.Charm.Unlocked) return;
 
-        //Equip
         if (!slotUI.Equipped && CharmCostManager.Instance.CheckValidCost(slotUI.Charm.CharmCost))
         {
-            Debug.Log($"Equip Charm {slotUI.Charm.CharmName}");
-
+            slotUI.Charm.SetEquipped(true);
             CharmManager.OnCharmEquipped.Invoke(slotUI.Charm);
             slotUI.OnEquipped();
             CharmCostManager.Instance.IncreaseCost(slotUI.Charm.CharmCost);
         }
-        //Remove
         else if (slotUI.Equipped)
         {
-            Debug.Log($"Remove Charm {slotUI.Charm.CharmName}");
+            slotUI.Charm.SetEquipped(false);
             CharmManager.OnCharmUnequipped.Invoke(slotUI.Charm);
             CharmCostManager.Instance.DecreaseCost(slotUI.Charm.CharmCost);
         }
@@ -317,10 +314,7 @@ public class CharmInventoryUI : SelectorManager
         {
             var slotUI = uis[i] as CharmSlotUI;
             if (slotUI == null) return;
-            if (slotUI.Charm == charm)
-            {
-                slotUI.OnEquipped();
-            }
+            if (slotUI.Charm == charm) slotUI.OnEquipped();
         }
     }
 
@@ -330,7 +324,6 @@ public class CharmInventoryUI : SelectorManager
         slotUI.OnUnequipped();
     }
 
-    //Assume that all Charms are unique.
     private void UpdateUnequippedCharm(Charm charm)
     {
         for (int i = 0; i < uis.Length; i++)
@@ -345,70 +338,17 @@ public class CharmInventoryUI : SelectorManager
         }
     }
 
-    //This is used to load the equipped charms (Basically save and load things.)
     public List<Charm> GetEquippedCharms()
     {
         List<Charm> charms = new List<Charm>();
         for(int i = 0; i < uis.Length; i++)
         {
             var slotUI = uis[i] as CharmSlotUI;
-            if (slotUI == null)
-            {
-                Debug.LogError("Equip Charm Inventory must only have EquipCharmSlotUI as child");
-                return null;
-            }
-            if (slotUI.Charm != null && slotUI.Equipped)
+            if (slotUI != null && slotUI.Charm != null && slotUI.Equipped)
             {
                 charms.Add(slotUI.Charm);
             }
         }
-
         return charms;
-    }
-
-    // --- NEW SAVE LOAD HELPER METHODS ---
-
-    public void ForceEquipCharmFromSave(Charm charm)
-    {
-        if (charm == null) return;
-
-        for (int i = 0; i < uis.Length; i++)
-        {
-            var slotUI = uis[i] as CharmSlotUI;
-            if (slotUI != null && slotUI.Charm == charm)
-            {
-                if (!slotUI.Equipped)
-                {
-                    // Bypasses the CheckValidCost requirement so loading works unconditionally
-                    CharmManager.OnCharmEquipped?.Invoke(charm);
-                    slotUI.OnEquipped();
-                    
-                    if (CharmCostManager.Instance != null)
-                        CharmCostManager.Instance.IncreaseCost(charm.CharmCost);
-                }
-                return;
-            }
-        }
-    }
-
-    public void ForceUnequipCharmFromSave(Charm charm)
-    {
-        if (charm == null) return;
-
-        for (int i = 0; i < uis.Length; i++)
-        {
-            var slotUI = uis[i] as CharmSlotUI;
-            if (slotUI != null && slotUI.Charm == charm)
-            {
-                if (slotUI.Equipped)
-                {
-                    CharmManager.OnCharmUnequipped?.Invoke(charm);
-                    
-                    if (CharmCostManager.Instance != null)
-                        CharmCostManager.Instance.DecreaseCost(charm.CharmCost);
-                }
-                return;
-            }
-        }
     }
 }
