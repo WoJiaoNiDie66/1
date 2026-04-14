@@ -155,4 +155,20 @@ public class SkillNodeUI : MonoBehaviour, IPointerClickHandler, IPointerEnterHan
             _skillBorder.sprite = _borderSprites[3];
         }
     }
+
+    public string GetSkillID()
+    {
+        if (_skillNode != null && _skillNode.SkillData != null)
+        {
+            // Will fallback to the filename of the ScriptableObject
+            return ScriptableObjectRuntimeSaveUtil.GetId(_skillNode.SkillData);
+        }
+        return string.Empty;
+    }
+
+    // Returns true if the local node wrapper has been unlocked during runtime
+    public bool IsNodeUnlocked()
+    {
+        return _skillNode != null && !_skillNode.IsLocked;
+    }
 }

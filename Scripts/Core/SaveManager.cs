@@ -28,7 +28,7 @@ public class SaveManager : MonoBehaviour
         if (CharmSaveBridge.Instance != null)
         {
             CurrentSaveData.unlockedCharmIds = CharmSaveBridge.Instance.GetUnlockedCharmIds();
-            CurrentSaveData.equippedCharmIds = CharmSaveBridge.Instance.GetEquippedCharmIds(); // <-- Updated
+            CurrentSaveData.equippedCharmIds = CharmSaveBridge.Instance.GetEquippedCharmIds();
         }
 
         if (InventorySaveBridge.Instance != null)
@@ -43,6 +43,20 @@ public class SaveManager : MonoBehaviour
             if (chest.HasBeenOpened && !CurrentSaveData.openedChestIds.Contains(chest.ChestID))
             {
                 CurrentSaveData.openedChestIds.Add(chest.ChestID);
+            }
+        }
+
+        // --- NEW: Save Unlocked Skills ---
+        SkillNodeUI[] skillNodes = FindObjectsOfType<SkillNodeUI>(true);
+        foreach (var node in skillNodes)
+        {
+            if (node.IsNodeUnlocked())
+            {
+                string id = node.GetSkillID();
+                if (!string.IsNullOrEmpty(id) && !CurrentSaveData.unlockedSkillIds.Contains(id))
+                {
+                    CurrentSaveData.unlockedSkillIds.Add(id);
+                }
             }
         }
 
@@ -61,7 +75,7 @@ public class SaveManager : MonoBehaviour
         CheckpointManager.Instance.RestoreCheckpointState(CurrentSaveData.activatedCheckpoints, CurrentSaveData.currentCheckpoint);
 
         if (CharmSaveBridge.Instance != null)
-            CharmSaveBridge.Instance.LoadState(CurrentSaveData.unlockedCharmIds, CurrentSaveData.equippedCharmIds); // <-- Updated
+            CharmSaveBridge.Instance.LoadState(CurrentSaveData.unlockedCharmIds, CurrentSaveData.equippedCharmIds);
 
         if (InventorySaveBridge.Instance != null)
             InventorySaveBridge.Instance.LoadState(CurrentSaveData.unlockedItemIds, CurrentSaveData.equippedItemIds);
@@ -72,6 +86,8 @@ public class SaveManager : MonoBehaviour
             bool wasOpened = CurrentSaveData.openedChestIds.Contains(chest.ChestID);
             chest.LoadState(wasOpened);
         }
+
+        // NOTE: Loading Skills is deferred for now!
 
         if (teleportPlayerToCurrentCheckpoint)
         {

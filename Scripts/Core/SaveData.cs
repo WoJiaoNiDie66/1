@@ -12,7 +12,10 @@ public class SaveData
     public List<string> unlockedItemIds = new List<string>();
 
     public List<string> equippedItemIds = new List<string>();
-    public List<string> equippedCharmIds = new List<string>(); // <-- Simplified to just strings
-    
+    public List<string> equippedCharmIds = new List<string>();
+
     public List<string> openedChestIds = new List<string>();
+    
+    // --- NEW: Skill Tree ---
+    public List<string> unlockedSkillIds = new List<string>();
 }
