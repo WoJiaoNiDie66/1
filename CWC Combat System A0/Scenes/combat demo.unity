@@ -2671,6 +2671,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3779559683519789218, guid: bebe5979db2989f46b6d5657dd83f5e1,
         type: 3}
+      propertyPath: chestID
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3779559683519789218, guid: bebe5979db2989f46b6d5657dd83f5e1,
+        type: 3}
       propertyPath: chestData
       value: 
       objectReference: {fileID: 11400000, guid: 2f400991e18441146a2bc782e60241d6,
@@ -2897,6 +2902,105 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1965275598}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &1897161586
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1820226262944320853, guid: bebe5979db2989f46b6d5657dd83f5e1,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -4
+      objectReference: {fileID: 0}
+    - target: {fileID: 1820226262944320853, guid: bebe5979db2989f46b6d5657dd83f5e1,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 20.106087
+      objectReference: {fileID: 0}
+    - target: {fileID: 1820226262944320853, guid: bebe5979db2989f46b6d5657dd83f5e1,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 20.06
+      objectReference: {fileID: 0}
+    - target: {fileID: 1820226262944320853, guid: bebe5979db2989f46b6d5657dd83f5e1,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1820226262944320853, guid: bebe5979db2989f46b6d5657dd83f5e1,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1820226262944320853, guid: bebe5979db2989f46b6d5657dd83f5e1,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1820226262944320853, guid: bebe5979db2989f46b6d5657dd83f5e1,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1820226262944320853, guid: bebe5979db2989f46b6d5657dd83f5e1,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1820226262944320853, guid: bebe5979db2989f46b6d5657dd83f5e1,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 180
+      objectReference: {fileID: 0}
+    - target: {fileID: 1820226262944320853, guid: bebe5979db2989f46b6d5657dd83f5e1,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3779559683519789218, guid: bebe5979db2989f46b6d5657dd83f5e1,
+        type: 3}
+      propertyPath: chestID
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3779559683519789218, guid: bebe5979db2989f46b6d5657dd83f5e1,
+        type: 3}
+      propertyPath: chestData
+      value: 
+      objectReference: {fileID: 11400000, guid: ab7133c8d330603419c3f2e4b7ef9b6e,
+        type: 2}
+    - target: {fileID: 3779559683519789218, guid: bebe5979db2989f46b6d5657dd83f5e1,
+        type: 3}
+      propertyPath: spinSpeed
+      value: 360
+      objectReference: {fileID: 0}
+    - target: {fileID: 3779559683519789218, guid: bebe5979db2989f46b6d5657dd83f5e1,
+        type: 3}
+      propertyPath: floatHeight
+      value: 1.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 3779559683519789218, guid: bebe5979db2989f46b6d5657dd83f5e1,
+        type: 3}
+      propertyPath: spriteScale
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3779559683519789218, guid: bebe5979db2989f46b6d5657dd83f5e1,
+        type: 3}
+      propertyPath: spawnOffset.y
+      value: 0.3
+      objectReference: {fileID: 0}
+    - target: {fileID: 6460223507762819065, guid: bebe5979db2989f46b6d5657dd83f5e1,
+        type: 3}
+      propertyPath: m_Name
+      value: Chest (1)
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: bebe5979db2989f46b6d5657dd83f5e1, type: 3}
 --- !u!1 &1957966152
 GameObject:
   m_ObjectHideFlags: 0
@@ -3178,6 +3282,7 @@ SceneRoots:
   - {fileID: 1239505499}
   - {fileID: 98584591}
   - {fileID: 1343064166}
+  - {fileID: 1897161586}
   - {fileID: 1750121837}
   - {fileID: 1208240938}
   - {fileID: 1399590981}

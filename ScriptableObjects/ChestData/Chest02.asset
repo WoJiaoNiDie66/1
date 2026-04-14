@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0306badccc9815646820a90db60c2a4d, type: 3}
-  m_Name: Chest01
+  m_Name: Chest02
   m_EditorClassIdentifier: 
   rewardPool:
   - rewardType: 0
-    charm: {fileID: 11400000, guid: bf38824fa35169a4999179003e5bfa92, type: 2}
+    charm: {fileID: 11400000, guid: 93233b2f39865c843a4778a336278d7c, type: 2}
     item: {fileID: 0}
     weight: 0
   rewardCount: 1

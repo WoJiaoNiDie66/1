@@ -34,15 +34,19 @@ public class InventorySaveBridge : MonoBehaviour
         return result;
     }
 
+    // --- FIX: Read straight from EquipmentManager ---
     public List<string> GetEquippedItemIds()
     {
         List<string> result = new List<string>();
-        foreach (var item in allItems)
+
+        foreach (EquipmentType type in Enum.GetValues(typeof(EquipmentType)))
         {
-            if (item != null && ScriptableObjectRuntimeSaveUtil.GetEquipped(item))
+            EquippableItem equippedItem = EquipmentManager.GetEquippedItem(type);
+            if (equippedItem != null)
             {
-                string id = ScriptableObjectRuntimeSaveUtil.GetId(item);
-                if (!string.IsNullOrEmpty(id) && !result.Contains(id)) result.Add(id);
+                string id = ScriptableObjectRuntimeSaveUtil.GetId(equippedItem);
+                if (!string.IsNullOrEmpty(id) && !result.Contains(id)) 
+                    result.Add(id);
             }
         }
         return result;
@@ -53,22 +57,31 @@ public class InventorySaveBridge : MonoBehaviour
         HashSet<string> unlockedSet = new HashSet<string>(savedUnlocked ?? new List<string>());
         HashSet<string> equippedSet = new HashSet<string>(savedEquipped ?? new List<string>());
 
+        // 1. Unequip everything currently equipped to clear ghost stats from old saves
+        foreach (EquipmentType type in Enum.GetValues(typeof(EquipmentType)))
+        {
+            EquippableItem currentItem = EquipmentManager.GetEquippedItem(type);
+            if (currentItem != null)
+            {
+                EquipmentManager.OnEquipmentUnequipped?.Invoke(currentItem);
+            }
+        }
+
+        // 2. Re-apply states
         foreach (var item in allItems)
         {
             if (item == null) continue;
 
             string id = ScriptableObjectRuntimeSaveUtil.GetId(item);
-            ScriptableObjectRuntimeSaveUtil.SetUnlocked(item, unlockedSet.Contains(id));
             
-            bool isEquipped = equippedSet.Contains(id);
-            bool wasEquipped = ScriptableObjectRuntimeSaveUtil.GetEquipped(item);
-            ScriptableObjectRuntimeSaveUtil.SetEquipped(item, isEquipped);
+            // Set Unlocked state
+            ScriptableObjectRuntimeSaveUtil.SetUnlocked(item, unlockedSet.Contains(id));
 
-            // Re-trigger the core EquipmentManager to recalculate damage multipliers
-            if (item is EquippableItem equippable)
+            // Equip state (Triggers the action so the player actually receives the stats!)
+            if (equippedSet.Contains(id) && item is EquippableItem equippable)
             {
-                if (isEquipped) EquipmentManager.OnEquipmentEquipped?.Invoke(equippable);
-                else if (wasEquipped) EquipmentManager.OnEquipmentUnequipped?.Invoke(equippable);
+                Debug.Log(equippable.ItemName);
+                EquipmentManager.OnEquipmentEquipped?.Invoke(equippable);
             }
         }
         OnInventoryStateApplied?.Invoke();
@@ -80,7 +93,6 @@ public class InventorySaveBridge : MonoBehaviour
         {
             if (item == null) continue;
             ScriptableObjectRuntimeSaveUtil.SetUnlocked(item, false);
-            ScriptableObjectRuntimeSaveUtil.SetEquipped(item, false);
         }
     }
 }

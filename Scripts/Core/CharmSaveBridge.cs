@@ -34,16 +34,37 @@ public class CharmSaveBridge : MonoBehaviour
         return result;
     }
 
+    // --- FIX: Read straight from CharmInventoryUI ---
     public List<CharmSaveData> GetEquippedCharms()
     {
         List<CharmSaveData> result = new List<CharmSaveData>();
-        foreach (var charm in allCharms)
+        
+        // Find the UI in the scene (even if it is currently disabled/hidden)
+        CharmInventoryUI charmUI = FindObjectOfType<CharmInventoryUI>(true);
+
+        if (charmUI != null)
         {
-            if (charm != null && charm.Equipped)
+            List<Charm> equippedCharms = charmUI.GetEquippedCharms();
+            if (equippedCharms != null)
             {
-                result.Add(new CharmSaveData { charmId = ScriptableObjectRuntimeSaveUtil.GetId(charm), slotId = charm.EquippedSlotID });
+                foreach (Charm charm in equippedCharms)
+                {
+                    if (charm != null)
+                    {
+                        result.Add(new CharmSaveData 
+                        { 
+                            charmId = ScriptableObjectRuntimeSaveUtil.GetId(charm), 
+                            slotId = charm.EquippedSlotID 
+                        });
+                    }
+                }
             }
         }
+        else
+        {
+            Debug.LogWarning("CharmInventoryUI could not be found in the scene! Equipped charms were not saved.");
+        }
+
         return result;
     }
 
@@ -63,12 +84,18 @@ public class CharmSaveBridge : MonoBehaviour
             if (charm == null) continue;
 
             string id = ScriptableObjectRuntimeSaveUtil.GetId(charm);
+            
+            // Set Unlocked state
             ScriptableObjectRuntimeSaveUtil.SetUnlocked(charm, unlockedSet.Contains(id));
 
+            // Set Equipped state
             if (equipMap.TryGetValue(id, out int slotId))
             {
                 charm.SetEquipped(true);
                 charm.SetSlotID(slotId);
+                
+                // Optional: If you have a CharmManager action you want to fire on load, it would be:
+                // CharmManager.OnCharmEquipped?.Invoke(charm);
             }
             else
             {
