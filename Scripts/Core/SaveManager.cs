@@ -46,7 +46,6 @@ public class SaveManager : MonoBehaviour
             }
         }
 
-        // --- NEW: Save Unlocked Skills ---
         SkillNodeUI[] skillNodes = FindObjectsOfType<SkillNodeUI>(true);
         foreach (var node in skillNodes)
         {
@@ -87,7 +86,11 @@ public class SaveManager : MonoBehaviour
             chest.LoadState(wasOpened);
         }
 
-        // NOTE: Loading Skills is deferred for now!
+        // --- NEW: Load the Skills! ---
+        if (SkillSaveBridge.Instance != null)
+        {
+            SkillSaveBridge.Instance.LoadState(CurrentSaveData.unlockedSkillIds);
+        }
 
         if (teleportPlayerToCurrentCheckpoint)
         {

@@ -1,3 +1,4 @@
+// Assets/Scripts/UI/Game UI/Skill Tree/SkillNode.cs
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,7 +10,6 @@ public class SkillNode
     [SerializeField]private SkillNodeUI parentNode;
     [SerializeField]private List<SkillNodeUI> children;
 
-
     public SkillUpgradeData SkillData => _skillData;
     public SkillNodeUI ParentNode => parentNode;
     public List<SkillNodeUI> Children => children;
@@ -19,6 +19,9 @@ public class SkillNode
 
     [SerializeField]
     private bool unlockable = false;
+
+    // --- NEW: Flag to prevent Start() from wiping out save data ---
+    public bool HasBeenInitializedBySave { get; set; } = false;
 
     public bool IsLocked => locked;
     public bool Unlockable => unlockable;
@@ -32,7 +35,6 @@ public class SkillNode
         }
 
         SetLocked(false);
-        //_skillData.SetLocked(false);
         if (Unlockable && !IsLocked)
         {
             Debug.Log("Unlocking");
@@ -51,10 +53,8 @@ public class SkillNode
 
     public void SetUnlockable(bool unlockable)
     {
-        //this.unlockable = unlockable;
         this.unlockable = unlockable;
     }
-
 }
 
 public enum SkillType { 
