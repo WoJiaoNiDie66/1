@@ -1,3 +1,4 @@
+// Assets/Scripts/UI/Game UI/Equipment System/EquipmentUI.cs
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -20,7 +21,6 @@ public class EquipmentUI : SelectorManager
     [SerializeField]
     private Image[] highlightImages;
 
-
     /// <summary>
     /// highlightSprites[0-3]: Helmet sprites,
     /// highlightSprites[4-7]: Chestplate sprites,
@@ -31,6 +31,7 @@ public class EquipmentUI : SelectorManager
     private Sprite[] highlightSprites;
 
     private EquipmentSlotUI currentSlot;
+    private bool pendingSync = false; // --- NEW: Sync flag
 
     protected override void Start()
     {
@@ -38,14 +39,91 @@ public class EquipmentUI : SelectorManager
         if (currentSlot == null) { 
             Debug.LogError("EquipmentUI can only have EquipmentSlotUI as child"); 
         }
+
         EquipmentManager.OnEquipmentEquipped += EquipItem;
         EquipmentManager.OnEquipmentUnequipped += UnequipItem;
+        
+        // --- NEW: Listen to the SaveManager ---
+        InventorySaveBridge.OnInventoryStateApplied += TriggerSync;
+
         base.Start();
+
+        // Run once on start in case it loaded before UI woke up
+        TriggerSync();
+    }
+
+    protected virtual void OnDestroy()
+    {
+        EquipmentManager.OnEquipmentEquipped -= EquipItem;
+        EquipmentManager.OnEquipmentUnequipped -= UnequipItem;
+        InventorySaveBridge.OnInventoryStateApplied -= TriggerSync;
+    }
+
+    // --- NEW: Coroutine Sync System ---
+    private void TriggerSync()
+    {
+        if (gameObject.activeInHierarchy)
+        {
+            StartCoroutine(SyncCoroutine());
+        }
+        else
+        {
+            // If the UI is disabled when loading, we flag it to sync next time it enables
+            pendingSync = true;
+        }
+    }
+
+    private void OnEnable()
+    {
+        if (pendingSync)
+        {
+            StartCoroutine(SyncCoroutine());
+        }
+    }
+
+    private IEnumerator SyncCoroutine()
+    {
+        // Wait until the end of the frame to ensure EquipmentManager is 100% awake!
+        yield return new WaitForEndOfFrame();
+        pendingSync = false;
+
+        if (uis == null || uis.Length == 0) yield break;
+
+        for (int i = 0; i < uis.Length; i++)
+        {
+            EquipmentSlotUI slotUI = uis[i] as EquipmentSlotUI;
+            if (slotUI == null) continue;
+
+            // Strict mapping based on your header notes
+            EquipmentType type = (EquipmentType)i;
+            
+            // Check what the top-level EquipmentManager says the player is actually wearing
+            EquippableItem currentlyEquipped = EquipmentManager.GetEquippedItem(type);
+
+            if (currentlyEquipped != null)
+            {
+                if (slotUI.EquippedItem != currentlyEquipped)
+                {
+                    Debug.Log($"<color=cyan>[Save Sync]</color> Visually Equipping to Panel: {currentlyEquipped.name}");
+                    slotUI.Equip(currentlyEquipped);
+                }
+            }
+            else
+            {
+                if (slotUI.EquippedItem != null || slotUI.Equipped)
+                {
+                    Debug.Log($"<color=yellow>[Save Sync]</color> Visually Unequipping from Panel slot: {type}");
+                    slotUI.Unequip();
+                }
+            }
+        }
+
+        // Refresh the highlighted borders
+        UIHover();
     }
 
     protected override void Update()
     {
-
         if (Input.GetKeyDown(KeyCode.F))
         {
             currentSlot = uis[currentIndex] as EquipmentSlotUI;
@@ -63,103 +141,58 @@ public class EquipmentUI : SelectorManager
             {
                 Debug.Log("No item has equipped.");
             }
-
-
         }
         base.Update();
     }
 
     public override void UIHover()
     {
+        if (uis == null || uis.Length == 0) return;
         currentSlot = uis[currentIndex] as EquipmentSlotUI;
+        if (currentSlot == null) return;
+
         switch ((EquipmentType)currentIndex) {
             case EquipmentType.HELMET:
-                if (currentSlot.Equipped)
-                {
-                    highlightImages[(int)EquipmentType.HELMET].sprite = highlightSprites[3];
-                }
-                else
-                {
-                    highlightImages[(int)EquipmentType.HELMET].sprite = highlightSprites[1];
-                }
+                if (currentSlot.Equipped) highlightImages[(int)EquipmentType.HELMET].sprite = highlightSprites[3];
+                else highlightImages[(int)EquipmentType.HELMET].sprite = highlightSprites[1];
                 break;
             case EquipmentType.CHESTPLATE:
-                if (currentSlot.Equipped)
-                {
-                    highlightImages[(int)EquipmentType.CHESTPLATE].sprite = highlightSprites[7];
-                }
-                else
-                {
-                    highlightImages[(int)EquipmentType.CHESTPLATE].sprite = highlightSprites[5];
-                }
+                if (currentSlot.Equipped) highlightImages[(int)EquipmentType.CHESTPLATE].sprite = highlightSprites[7];
+                else highlightImages[(int)EquipmentType.CHESTPLATE].sprite = highlightSprites[5];
                 break;
             case EquipmentType.LEGGINGS:
-                if (currentSlot.Equipped)
-                {
-                    highlightImages[(int)EquipmentType.LEGGINGS].sprite = highlightSprites[11];
-                }
-                else
-                {
-                    highlightImages[(int)EquipmentType.LEGGINGS].sprite = highlightSprites[9];
-                }
+                if (currentSlot.Equipped) highlightImages[(int)EquipmentType.LEGGINGS].sprite = highlightSprites[11];
+                else highlightImages[(int)EquipmentType.LEGGINGS].sprite = highlightSprites[9];
                 break;
             case EquipmentType.BOOTS:
-                if (currentSlot.Equipped)
-                {
-                    highlightImages[(int)EquipmentType.BOOTS].sprite = highlightSprites[15];
-                }
-                else
-                {
-                    highlightImages[(int)EquipmentType.BOOTS].sprite = highlightSprites[13];
-                }
+                if (currentSlot.Equipped) highlightImages[(int)EquipmentType.BOOTS].sprite = highlightSprites[15];
+                else highlightImages[(int)EquipmentType.BOOTS].sprite = highlightSprites[13];
                 break;
         }
 
-        for(int i = 0; i < uis.Length - 1; i++)
+        for(int i = 0; i < uis.Length - 1; i++) // NOTE: Assumes Weapon is ignored for highlights based on original code loop condition
         {
             if (i == currentIndex) continue;
             EquipmentSlotUI slotUI = uis[i] as EquipmentSlotUI;
+            if (slotUI == null) continue;
+
             switch ((EquipmentType)i)
             {
                 case EquipmentType.HELMET:
-                    if (slotUI.Equipped)
-                    {
-                        highlightImages[(int)EquipmentType.HELMET].sprite = highlightSprites[2];
-                    }
-                    else
-                    {
-                        highlightImages[(int)EquipmentType.HELMET].sprite = highlightSprites[0];
-                    }
+                    if (slotUI.Equipped) highlightImages[(int)EquipmentType.HELMET].sprite = highlightSprites[2];
+                    else highlightImages[(int)EquipmentType.HELMET].sprite = highlightSprites[0];
                     break;
                 case EquipmentType.CHESTPLATE:
-                    if (slotUI.Equipped)
-                    {
-                        highlightImages[(int)EquipmentType.CHESTPLATE].sprite = highlightSprites[6];
-                    }
-                    else
-                    {
-                        highlightImages[(int)EquipmentType.CHESTPLATE].sprite = highlightSprites[4];
-                    }
+                    if (slotUI.Equipped) highlightImages[(int)EquipmentType.CHESTPLATE].sprite = highlightSprites[6];
+                    else highlightImages[(int)EquipmentType.CHESTPLATE].sprite = highlightSprites[4];
                     break;
                 case EquipmentType.LEGGINGS:
-                    if (slotUI.Equipped)
-                    {
-                        highlightImages[(int)EquipmentType.LEGGINGS].sprite = highlightSprites[10];
-                    }
-                    else
-                    {
-                        highlightImages[(int)EquipmentType.LEGGINGS].sprite = highlightSprites[8];
-                    }
+                    if (slotUI.Equipped) highlightImages[(int)EquipmentType.LEGGINGS].sprite = highlightSprites[10];
+                    else highlightImages[(int)EquipmentType.LEGGINGS].sprite = highlightSprites[8];
                     break;
                 case EquipmentType.BOOTS:
-                    if (slotUI.Equipped)
-                    {
-                        highlightImages[(int)EquipmentType.BOOTS].sprite = highlightSprites[14];
-                    }
-                    else
-                    {
-                        highlightImages[(int)EquipmentType.BOOTS].sprite = highlightSprites[12];
-                    }
+                    if (slotUI.Equipped) highlightImages[(int)EquipmentType.BOOTS].sprite = highlightSprites[14];
+                    else highlightImages[(int)EquipmentType.BOOTS].sprite = highlightSprites[12];
                     break;
             }
         }
@@ -184,11 +217,12 @@ public class EquipmentUI : SelectorManager
         {
             Debug.Log("No item has equipped.");
         }
-
     }
 
     private void EquipItem(EquippableItem item)
     {
+        if (uis == null || uis.Length == 0) return;
+
         int id = (int)item.EquipmentType;
         EquipmentSlotUI slotUI = uis[id] as EquipmentSlotUI;
         if(slotUI == null)
@@ -210,6 +244,8 @@ public class EquipmentUI : SelectorManager
 
     private void UnequipItem(EquippableItem item) 
     {
+        if (uis == null || uis.Length == 0) return;
+
         int id = (int)item.EquipmentType;
         EquipmentSlotUI slotUI = uis[id] as EquipmentSlotUI;
         if (slotUI != null)
