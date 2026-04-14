@@ -34,12 +34,10 @@ public class CharmSaveBridge : MonoBehaviour
         return result;
     }
 
-    // --- FIX: Read straight from CharmInventoryUI ---
-    public List<CharmSaveData> GetEquippedCharms()
+    public List<string> GetEquippedCharmIds()
     {
-        List<CharmSaveData> result = new List<CharmSaveData>();
+        List<string> result = new List<string>();
         
-        // Find the UI in the scene (even if it is currently disabled/hidden)
         CharmInventoryUI charmUI = FindObjectOfType<CharmInventoryUI>(true);
 
         if (charmUI != null)
@@ -51,11 +49,7 @@ public class CharmSaveBridge : MonoBehaviour
                 {
                     if (charm != null)
                     {
-                        result.Add(new CharmSaveData 
-                        { 
-                            charmId = ScriptableObjectRuntimeSaveUtil.GetId(charm), 
-                            slotId = charm.EquippedSlotID 
-                        });
+                        result.Add(ScriptableObjectRuntimeSaveUtil.GetId(charm));
                     }
                 }
             }
@@ -68,16 +62,12 @@ public class CharmSaveBridge : MonoBehaviour
         return result;
     }
 
-    public void LoadState(List<string> savedUnlocked, List<CharmSaveData> savedEquipped)
+    public void LoadState(List<string> savedUnlocked, List<string> savedEquipped)
     {
         HashSet<string> unlockedSet = new HashSet<string>(savedUnlocked ?? new List<string>());
-        
-        Dictionary<string, int> equipMap = new Dictionary<string, int>();
-        if (savedEquipped != null)
-        {
-            foreach (var data in savedEquipped)
-                if (!string.IsNullOrEmpty(data.charmId)) equipMap[data.charmId] = data.slotId;
-        }
+        HashSet<string> equippedSet = new HashSet<string>(savedEquipped ?? new List<string>());
+
+        CharmInventoryUI charmUI = FindObjectOfType<CharmInventoryUI>(true);
 
         foreach (var charm in allCharms)
         {
@@ -88,19 +78,18 @@ public class CharmSaveBridge : MonoBehaviour
             // Set Unlocked state
             ScriptableObjectRuntimeSaveUtil.SetUnlocked(charm, unlockedSet.Contains(id));
 
-            // Set Equipped state
-            if (equipMap.TryGetValue(id, out int slotId))
+            // Delegate equipping back to the UI Manager so abilities and costs apply correctly
+            if (equippedSet.Contains(id))
             {
-                charm.SetEquipped(true);
-                charm.SetSlotID(slotId);
-                
-                // Optional: If you have a CharmManager action you want to fire on load, it would be:
-                // CharmManager.OnCharmEquipped?.Invoke(charm);
+                charm.SetEquipped(true); // Still update the SO state
+                if (charmUI != null)
+                    charmUI.ForceEquipCharmFromSave(charm);
             }
             else
             {
-                charm.SetEquipped(false);
-                charm.SetSlotID(-1);
+                charm.SetEquipped(false); // Still update the SO state
+                if (charmUI != null)
+                    charmUI.ForceUnequipCharmFromSave(charm);
             }
         }
         OnCharmStateApplied?.Invoke();
@@ -108,12 +97,18 @@ public class CharmSaveBridge : MonoBehaviour
 
     public void ResetAllRuntimeUnlockedFlags()
     {
+        CharmInventoryUI charmUI = FindObjectOfType<CharmInventoryUI>(true);
+
         foreach (var charm in allCharms)
         {
             if (charm == null) continue;
+            
             ScriptableObjectRuntimeSaveUtil.SetUnlocked(charm, false);
             charm.SetEquipped(false);
-            charm.SetSlotID(-1);
+
+            // Cleanly force-unequip in UI to clear old costs/effects from previous saves
+            if (charmUI != null)
+                charmUI.ForceUnequipCharmFromSave(charm);
         }
     }
 }

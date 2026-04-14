@@ -1,3 +1,4 @@
+// Assets/Scripts/UI/Game UI/Charm System/CharmInventoryUI.cs
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -104,7 +105,6 @@ public class CharmInventoryUI : SelectorManager
             }
             UIHover();
 
-
         }
         else if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
         {
@@ -119,7 +119,6 @@ public class CharmInventoryUI : SelectorManager
             }
             UIHover();
 
-
         }
         else if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
         {
@@ -131,8 +130,6 @@ public class CharmInventoryUI : SelectorManager
                 }
                 UIHover();  
             }
-
-
 
         }
     }
@@ -250,7 +247,6 @@ public class CharmInventoryUI : SelectorManager
                 }
             }
 
-
             if (slotUI.Charm == null || !slotUI.Charm.Unlocked)
             {
                 charmDescriptor.ResetDescription();
@@ -268,7 +264,6 @@ public class CharmInventoryUI : SelectorManager
             {
                 Debug.LogError("Slot selected but Charm cannot be null.");
             }
-
 
         
     }
@@ -369,5 +364,51 @@ public class CharmInventoryUI : SelectorManager
         }
 
         return charms;
+    }
+
+    // --- NEW SAVE LOAD HELPER METHODS ---
+
+    public void ForceEquipCharmFromSave(Charm charm)
+    {
+        if (charm == null) return;
+
+        for (int i = 0; i < uis.Length; i++)
+        {
+            var slotUI = uis[i] as CharmSlotUI;
+            if (slotUI != null && slotUI.Charm == charm)
+            {
+                if (!slotUI.Equipped)
+                {
+                    // Bypasses the CheckValidCost requirement so loading works unconditionally
+                    CharmManager.OnCharmEquipped?.Invoke(charm);
+                    slotUI.OnEquipped();
+                    
+                    if (CharmCostManager.Instance != null)
+                        CharmCostManager.Instance.IncreaseCost(charm.CharmCost);
+                }
+                return;
+            }
+        }
+    }
+
+    public void ForceUnequipCharmFromSave(Charm charm)
+    {
+        if (charm == null) return;
+
+        for (int i = 0; i < uis.Length; i++)
+        {
+            var slotUI = uis[i] as CharmSlotUI;
+            if (slotUI != null && slotUI.Charm == charm)
+            {
+                if (slotUI.Equipped)
+                {
+                    CharmManager.OnCharmUnequipped?.Invoke(charm);
+                    
+                    if (CharmCostManager.Instance != null)
+                        CharmCostManager.Instance.DecreaseCost(charm.CharmCost);
+                }
+                return;
+            }
+        }
     }
 }

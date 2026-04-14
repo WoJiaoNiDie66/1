@@ -25,21 +25,18 @@ public class SaveManager : MonoBehaviour
         CurrentSaveData.currentCheckpoint = CheckpointManager.Instance.GetCurrentCheckpointName();
         CurrentSaveData.activatedCheckpoints = CheckpointManager.Instance.GetActivatedCheckpointNames();
 
-        // Save Charms
         if (CharmSaveBridge.Instance != null)
         {
             CurrentSaveData.unlockedCharmIds = CharmSaveBridge.Instance.GetUnlockedCharmIds();
-            CurrentSaveData.equippedCharms = CharmSaveBridge.Instance.GetEquippedCharms();
+            CurrentSaveData.equippedCharmIds = CharmSaveBridge.Instance.GetEquippedCharmIds(); // <-- Updated
         }
 
-        // Save Items
         if (InventorySaveBridge.Instance != null)
         {
             CurrentSaveData.unlockedItemIds = InventorySaveBridge.Instance.GetUnlockedItemIds();
             CurrentSaveData.equippedItemIds = InventorySaveBridge.Instance.GetEquippedItemIds();
         }
 
-        // Save opened chests in current scene (merged so we don't erase chests from other scenes)
         ChestController[] chestsInScene = FindObjectsOfType<ChestController>();
         foreach (var chest in chestsInScene)
         {
@@ -64,12 +61,11 @@ public class SaveManager : MonoBehaviour
         CheckpointManager.Instance.RestoreCheckpointState(CurrentSaveData.activatedCheckpoints, CurrentSaveData.currentCheckpoint);
 
         if (CharmSaveBridge.Instance != null)
-            CharmSaveBridge.Instance.LoadState(CurrentSaveData.unlockedCharmIds, CurrentSaveData.equippedCharms);
+            CharmSaveBridge.Instance.LoadState(CurrentSaveData.unlockedCharmIds, CurrentSaveData.equippedCharmIds); // <-- Updated
 
         if (InventorySaveBridge.Instance != null)
             InventorySaveBridge.Instance.LoadState(CurrentSaveData.unlockedItemIds, CurrentSaveData.equippedItemIds);
 
-        // Instantly force-open chests that were already looted
         ChestController[] chestsInScene = FindObjectsOfType<ChestController>();
         foreach (var chest in chestsInScene)
         {
