@@ -34,7 +34,6 @@ public class InventorySaveBridge : MonoBehaviour
         return result;
     }
 
-    // --- FIX: Read straight from EquipmentManager ---
     public List<string> GetEquippedItemIds()
     {
         List<string> result = new List<string>();
@@ -74,25 +73,37 @@ public class InventorySaveBridge : MonoBehaviour
 
             string id = ScriptableObjectRuntimeSaveUtil.GetId(item);
             
-            // Set Unlocked state
+            // Set Unlocked state (Now correctly searches BaseType inheritance)
             ScriptableObjectRuntimeSaveUtil.SetUnlocked(item, unlockedSet.Contains(id));
 
-            // Equip state (Triggers the action so the player actually receives the stats!)
             if (equippedSet.Contains(id) && item is EquippableItem equippable)
             {
-                Debug.Log(equippable.ItemName);
                 EquipmentManager.OnEquipmentEquipped?.Invoke(equippable);
             }
         }
         OnInventoryStateApplied?.Invoke();
     }
 
+    // --- FIX: Clear Static dictionary alongside ScriptableObjects ---
     public void ResetAllRuntimeUnlockedFlags()
     {
+        // 1. Unequip everything from EquipmentManager to clear the static memory dictionary
+        foreach (EquipmentType type in Enum.GetValues(typeof(EquipmentType)))
+        {
+            EquippableItem currentItem = EquipmentManager.GetEquippedItem(type);
+            if (currentItem != null)
+            {
+                EquipmentManager.OnEquipmentUnequipped?.Invoke(currentItem);
+            }
+        }
+
+        // 2. Reset the ScriptableObjects Unlocked flags (Will now successfully find the variable)
         foreach (var item in allItems)
         {
             if (item == null) continue;
             ScriptableObjectRuntimeSaveUtil.SetUnlocked(item, false);
         }
+        
+        OnInventoryStateApplied?.Invoke();
     }
 }

@@ -17,6 +17,6 @@ MonoBehaviour:
   charmCost: 3
   charmDescription: Health Regen over time
   charmID: 1
-  unlocked: 1
+  unlocked: 0
   equipped: 0
   equippedSlotID: -1

@@ -17,6 +17,6 @@ MonoBehaviour:
   charmCost: 2
   charmDescription: Run Faster!
   charmID: 0
-  unlocked: 1
+  unlocked: 0
   equipped: 0
   equippedSlotID: -1

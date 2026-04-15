@@ -6,8 +6,6 @@ public static class ScriptableObjectRuntimeSaveUtil
 {
     private static readonly string[] IdMemberNames = { "charmID", "itemID", "ID", "id", "uniqueID", "uniqueId" };
     private static readonly string[] UnlockMemberNames = { "isUnlocked", "unlocked", "IsUnlocked", "Unlocked" };
-    
-    // NEW: Handle equipped variables
     private static readonly string[] EquipMemberNames = { "isEquipped", "equipped", "IsEquipped", "Equipped" };
 
     public static string GetId(ScriptableObject so)
@@ -31,7 +29,6 @@ public static class ScriptableObjectRuntimeSaveUtil
         SetMemberValue(so, UnlockMemberNames, value);
     }
 
-    // --- NEW METHODS FOR EQUIPPED STATE ---
     public static bool GetEquipped(ScriptableObject so)
     {
         if (so == null) return false;
@@ -45,19 +42,26 @@ public static class ScriptableObjectRuntimeSaveUtil
         SetMemberValue(so, EquipMemberNames, value);
     }
 
-    // Internal reflection logic
+    // Internal reflection logic with recursive inheritance check
     private static object GetMemberValue(object target, string[] candidateNames)
     {
         System.Type type = target.GetType();
-        BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+        BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
 
         for (int i = 0; i < candidateNames.Length; i++)
         {
-            FieldInfo field = type.GetField(candidateNames[i], flags);
-            if (field != null) return field.GetValue(target);
+            System.Type currentType = type;
+            // Climb up the inheritance tree until we hit a base Unity class
+            while (currentType != null && currentType != typeof(ScriptableObject) && currentType != typeof(Object))
+            {
+                FieldInfo field = currentType.GetField(candidateNames[i], flags);
+                if (field != null) return field.GetValue(target);
 
-            PropertyInfo property = type.GetProperty(candidateNames[i], flags);
-            if (property != null && property.CanRead) return property.GetValue(target);
+                PropertyInfo property = currentType.GetProperty(candidateNames[i], flags);
+                if (property != null && property.CanRead) return property.GetValue(target);
+
+                currentType = currentType.BaseType;
+            }
         }
         return null;
     }
@@ -65,15 +69,29 @@ public static class ScriptableObjectRuntimeSaveUtil
     private static bool SetMemberValue(object target, string[] candidateNames, bool value)
     {
         System.Type type = target.GetType();
-        BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+        BindingFlags flags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
 
         for (int i = 0; i < candidateNames.Length; i++)
         {
-            FieldInfo field = type.GetField(candidateNames[i], flags);
-            if (field != null && field.FieldType == typeof(bool)) { field.SetValue(target, value); return true; }
+            System.Type currentType = type;
+            while (currentType != null && currentType != typeof(ScriptableObject) && currentType != typeof(Object))
+            {
+                FieldInfo field = currentType.GetField(candidateNames[i], flags);
+                if (field != null && field.FieldType == typeof(bool)) 
+                { 
+                    field.SetValue(target, value); 
+                    return true; 
+                }
 
-            PropertyInfo property = type.GetProperty(candidateNames[i], flags);
-            if (property != null && property.CanWrite && property.PropertyType == typeof(bool)) { property.SetValue(target, value); return true; }
+                PropertyInfo property = currentType.GetProperty(candidateNames[i], flags);
+                if (property != null && property.CanWrite && property.PropertyType == typeof(bool)) 
+                { 
+                    property.SetValue(target, value); 
+                    return true; 
+                }
+
+                currentType = currentType.BaseType;
+            }
         }
         return false;
     }

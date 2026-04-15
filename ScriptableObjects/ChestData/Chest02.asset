@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rewardPool:
   - rewardType: 0
-    charm: {fileID: 11400000, guid: 93233b2f39865c843a4778a336278d7c, type: 2}
+    charm: {fileID: 11400000, guid: bf38824fa35169a4999179003e5bfa92, type: 2}
     item: {fileID: 0}
     weight: 0
   rewardCount: 1

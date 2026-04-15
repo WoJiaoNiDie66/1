@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Chest01
   m_EditorClassIdentifier: 
   rewardPool:
-  - rewardType: 0
-    charm: {fileID: 11400000, guid: bf38824fa35169a4999179003e5bfa92, type: 2}
-    item: {fileID: 0}
+  - rewardType: 1
+    charm: {fileID: 0}
+    item: {fileID: 11400000, guid: f770b6f0843db7a49a8e1c7cbefe931c, type: 2}
     weight: 0
   rewardCount: 1

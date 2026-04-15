@@ -16,6 +16,6 @@ MonoBehaviour:
   itemSprite: {fileID: -1887870960, guid: 82fb946017250bd48ab1e110e91c70a6, type: 3}
   itemDescription: Sharp and short!
   itemID: 5
-  unlocked: 1
+  unlocked: 0
   itemType: 0
   equipmentType: 0
