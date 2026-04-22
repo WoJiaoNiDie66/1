@@ -1,16 +1,15 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public class ExitButton : MonoBehaviour
 {
     public void ExitToMenu()
     {
-        // Make sure the game is no longer paused
+        // Reset pause state so the next session starts clean.
+        ActiveGameUIManager.isPaused = false;
         Time.timeScale = 1f;
-        AudioListener.pause = false;
 
-        // Clear SaveManager runtime state too
+        // Reset SaveManager's runtime state.
         if (SaveManager.Instance != null)
             SaveManager.Instance.PrepareForMainMenu();
 
