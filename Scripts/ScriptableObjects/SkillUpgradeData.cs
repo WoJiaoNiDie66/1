@@ -17,8 +17,8 @@ public class SkillUpgradeData : ScriptableObject
     [SerializeField]
     private Sprite upgradeSprite;
 
-    [SerializeField] 
-    private SkillType skillType = SkillType.FIREBALL;
+    [SerializeField]
+    private int skillType = -1;
 
     [SerializeField] 
     private float value;
@@ -33,7 +33,7 @@ public class SkillUpgradeData : ScriptableObject
     public string UpgradeType => upgradeType;
     public string Description => description;
     public Sprite UpgradeSprite => upgradeSprite;
-    public SkillType SkillType => skillType;
+    public int SkillType => skillType;
     public float Value => value;
     public bool IsLocked => locked;
     public bool Unlockable => unlockable;

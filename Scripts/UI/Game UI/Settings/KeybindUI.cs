@@ -6,7 +6,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
-
+//This class no longer used. Please look at RebindActionUI.cs for the new implementation of keybind UI.
 public class KeybindUI : MonoBehaviour,IPointerClickHandler
 {
     [SerializeField]

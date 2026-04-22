@@ -7,6 +7,11 @@ using System.Collections.Generic;
 [Serializable]
 public class SkeletonSwordDecision : MonoBehaviour
 {
+    [Header("Respawn Settings")]
+    public bool shouldRespawn = true; 
+    private Vector3 _startPosition;
+    private Quaternion _startRotation;
+
     public SkeletonSwordMain_A0 _playerMain;
     [SerializeField] public EnemySkill[] battleSkills;
     /*
@@ -292,5 +297,95 @@ public class SkeletonSwordDecision : MonoBehaviour
         {
             battleSkills[_playerMain._anim_enemySkillIndex].posibility += 30f;
         }
+    }
+
+    private void Awake()
+    {
+        // 在 Awake 时记录初始位置
+        _startPosition = transform.position;
+        _startRotation = transform.rotation;
+        
+        AssignAnimationIDs();
+    }
+    
+    // 核心复活/回血函数
+    public void ResetEnemy()
+    {
+        // 1. 立即激活物体，让组件(Animator/Physics)在当前帧开始苏醒
+        gameObject.SetActive(true);
+        
+        // 2. 开启协程，延迟到下一帧（物理运算结束后）再强行修改状态
+        StartCoroutine(ResetRoutine());
+    }
+
+    // 协程：等待引擎底层苏醒后再下刀
+    private System.Collections.IEnumerator ResetRoutine()
+    {
+        // 【核心魔法】：等待当前帧所有的渲染和物理运算结束。
+        // 这完美避开了 OnTriggerEnter 的物理冲突和 Animator 的装死判定！
+        yield return new WaitForEndOfFrame();
+
+        // 1. 关掉物理，解除锁定
+        if (m_Agent != null) m_Agent.enabled = false;
+        CharacterController cc = GetComponent<CharacterController>();
+        if (cc != null) cc.enabled = false;
+
+        // 2. 传送并强制同步物理引擎（非常重要！）
+        transform.position = _startPosition;
+        transform.rotation = _startRotation;
+        Physics.SyncTransforms(); // 强行同步物理坐标
+
+        // 3. 恢复物理
+        if (cc != null) cc.enabled = true;
+        if (m_Agent != null) m_Agent.enabled = true;
+
+        // 4. 洗清所有的内鬼数据
+        if (_playerMain != null)
+        {
+            _playerMain.nextStateID = 0;
+            _playerMain._anim_enemySkillIndex = 0;
+            _playerMain._anim_flag = false;
+            curNextSkill = 0;
+
+            if (_playerMain._combatSystem != null)
+            {
+                // 我们直接在这里暴力重置 CombatSystem，防止漏掉任何数值
+                _playerMain._combatSystem.currentHealth = 1000f; 
+                _playerMain._combatSystem.currentFocus = 125f;
+                _playerMain._combatSystem.currentStamina = 100f;
+                _playerMain._combatSystem.currentPoise = 19f;
+                _playerMain._combatSystem.curKB_getHit = 0;
+                _playerMain._combatSystem.curKB_getHitType = 1;
+                
+                // 强行清空伤害和编辑队列，拔除致死残留！
+                _playerMain._combatSystem.currentPendingDamageDataList.Clear();
+                _playerMain._combatSystem.currentPendingVEList.Clear();
+            }
+
+            if (_playerMain._animator != null)
+            {
+                _playerMain._animator.enabled = true;
+                _playerMain._animator.Rebind();
+                _playerMain._animator.Update(0f);
+                
+                // 此时 Animator 已完全清醒，参数注入绝对有效
+                _playerMain._animator.SetFloat(_animID_HP, 1000f);
+                _playerMain._animator.SetBool(_animIDDeath, false);
+                _playerMain._animator.SetInteger(_animIDNextState, 0);
+                _playerMain._animator.SetInteger(_animID_getHit, 0);
+
+                // 霸王硬上弓：播放 Idle
+                _playerMain._animator.Play("Idle Walk Run Blend", 0, 0f); 
+            }
+        }
+
+        Debug.Log($"<color=green>[ResetEnemy]</color> {gameObject.name} 协程重置完毕，物理与动画已强制归位！");
+    }
+
+    public bool IsDead()
+    {
+        if (_playerMain != null && _playerMain._combatSystem != null)
+            return _playerMain._combatSystem.currentHealth <= 0;
+        return !gameObject.activeInHierarchy;
     }
 }

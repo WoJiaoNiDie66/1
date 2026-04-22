@@ -35,12 +35,12 @@ public class SkillNodeSelector : MonoBehaviour
             Debug.Log($"Skill Node {i}:");
             Debug.Log(skillNodes[i] == null);
         }
-        UIHover();
     }
 
     private void Start()
     {
         skillDescriptor.gameObject.SetActive(false);
+        UIHover();
     }
 
     private void Update()

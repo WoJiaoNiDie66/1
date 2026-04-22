@@ -52,11 +52,11 @@ public class PlayerDecision : MonoBehaviour
         14. 鉤爪
         15. 火炬 (no need)
     */
-    public int[] equippedSkillsR = { 5, -1, 12, -1, 11 }; // Max 5
-    public int[] equippedSkillsL = { -1, 10, -1, 13, -1 }; // Max 5
+    public int[] equippedSkillsR = { 5, -1, 12, -1, 11 ,-1,-1,-1,-1,-1,-1}; // Max 16
+    public int[] equippedSkillsL = { -1, 10, -1, 13, -1 }; // Max 16
     public int[] equippedItems = { -1, -1, -1, 14, 15 }; // Max 5
-    private List<int> equippedCharms = new List<int>();
-    private List<int> equippedSkillTree = new List<int>();
+    //private List<int> equippedCharms = new List<int>();
+    //private List<int> equippedSkillTree = new List<int>();
     public int currentEquippedSkillR = 0;
     public int currentEquippedSkillL = 1;
     public int currentEquippedItem = 3;

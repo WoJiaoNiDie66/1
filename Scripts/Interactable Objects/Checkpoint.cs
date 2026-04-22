@@ -16,34 +16,36 @@ public class Checkpoint : MonoBehaviour
 
     [Header("Spin Settings")]
     [SerializeField] private float spinSpeed = 90f;
-    [SerializeField] private float saveSpinMultiplier = 8f; // How much faster it spins on save
-    [SerializeField] private float spinRecoveryTime = 1f;   // Time it takes to slow back down
+    [SerializeField] private float saveSpinMultiplier = 8f; 
+    [SerializeField] private float spinRecoveryTime = 1f;   
+
+    [Header("Spawn Settings")]
+    [Tooltip("玩家传送的具体位置与朝向 (位置 T)")]
+    [SerializeField] private Transform spawnPointT; 
 
     public string CheckpointName => checkpointName;
-    public Vector3 TeleportPosition => transform.position;
+    
+    // 【恢复】使用位置 T 逻辑，如果没设 T 则用存档点中心
+    public Vector3 TeleportPosition => spawnPointT != null ? spawnPointT.position : transform.position;
+    public Quaternion TeleportRotation => spawnPointT != null ? spawnPointT.rotation : transform.rotation;
 
     private GameObject visualObject;
     private SpriteRenderer spriteRenderer;
     private Vector3 visualStartPosition;
-    
+
     private bool playerInRange = false;
     private bool isActivated = false;
 
-    // --- NEW: Spin State Variables ---
     private float currentSpinSpeed;
     private Coroutine spinRoutine;
 
     private void Start()
     {
-        // Initialize current speed to base speed
         currentSpinSpeed = spinSpeed;
-
         visualObject = new GameObject("CheckpointVisuals");
         visualObject.transform.SetParent(transform);
         visualObject.transform.localPosition = Vector3.zero;
-
         visualStartPosition = visualObject.transform.localPosition;
-
         spriteRenderer = visualObject.AddComponent<SpriteRenderer>();
         if (checkpointSprite != null)
             spriteRenderer.sprite = checkpointSprite;
@@ -52,11 +54,10 @@ public class Checkpoint : MonoBehaviour
     private void Update()
     {
         AnimateVisuals();
-
         if (!playerInRange) return;
 
-        // Open Checkpoint Panel
-        if (Input.GetKeyDown(KeyCode.F) && !CheckpointPanel.Instance.IsOpen)
+        // 【保留】组员的 UI 面板逻辑
+        if (Input.GetKeyDown(KeyCode.F) && CheckpointPanel.Instance != null && !CheckpointPanel.Instance.IsOpen)
         {
             CheckpointPanel.Instance.Open(this);
         }
@@ -67,42 +68,59 @@ public class Checkpoint : MonoBehaviour
         if (visualObject == null) return;
         float newY = visualStartPosition.y + Mathf.Sin(Time.time * floatSpeed) * floatAmplitude;
         visualObject.transform.localPosition = new Vector3(visualStartPosition.x, newY, visualStartPosition.z);
-        
-        // Use currentSpinSpeed instead of fixed spinSpeed
         visualObject.transform.Rotate(Vector3.up, currentSpinSpeed * Time.deltaTime, Space.World);
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.name == "CwcPlayer_A0")
+        // 【恢复】严谨的玩家碰撞检测 (root 检测)
+        bool isPlayer = other.CompareTag("Player") || 
+                        (other.transform.root != null && other.transform.root.CompareTag("Player"));
+
+        if (isPlayer)
         {
             playerInRange = true;
 
-            // Register first-time activation
             if (!isActivated)
             {
                 isActivated = true;
-                CheckpointManager.Instance.RegisterCheckpoint(this);
+                if (CheckpointManager.Instance != null)
+                    CheckpointManager.Instance.RegisterCheckpoint(this);
             }
 
-            // ALWAYS save the game the moment the player walks into the trigger
             if (SaveManager.Instance != null)
             {
-                SaveManager.Instance.SaveGame(this);
-                TriggerSaveEffect(); // Trigger visual feedback
+                // 防连触判定
+                if (currentSpinSpeed <= spinSpeed + 1f) 
+                {
+                    SaveManager.Instance.SaveGame(this);
+                    TriggerSaveEffect(); 
+
+                    // =========================================================
+                    // 【致命修复】把被组员删掉的复活指令加回来！
+                    // =========================================================
+                    if (EnemyManager.Instance != null)
+                    {
+                        EnemyManager.Instance.OnCheckpointRest();
+                    }
+                    else
+                    {
+                        Debug.LogError("<color=red>[严重错误]</color> 场景中没有 EnemyManager 实例！");
+                    }
+
+                    Debug.Log($"<color=green>[Checkpoint]</color> 激活成功并触发了怪物复活：{checkpointName}");
+                }
             }
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.name == "CwcPlayer_A0")
-        {
-            playerInRange = false;
-        }
+        bool isPlayer = other.CompareTag("Player") || 
+                        (other.transform.root != null && other.transform.root.CompareTag("Player"));
+        if (isPlayer) playerInRange = false;
     }
 
-    // --- NEW: Save Feedback Logic ---
     private void TriggerSaveEffect()
     {
         if (spinRoutine != null) StopCoroutine(spinRoutine);
@@ -113,26 +131,15 @@ public class Checkpoint : MonoBehaviour
     {
         float elapsed = 0f;
         float targetSpin = spinSpeed * saveSpinMultiplier;
-
         while (elapsed < spinRecoveryTime)
         {
             elapsed += Time.deltaTime;
-            // Smoothly transition from the fast spin back down to the normal spin speed
             currentSpinSpeed = Mathf.Lerp(targetSpin, spinSpeed, elapsed / spinRecoveryTime);
             yield return null;
         }
-
-        // Lock it exactly back to the default
         currentSpinSpeed = spinSpeed;
     }
 
-    public void ResetRange()
-    {
-        playerInRange = false;
-    }
-
-    public void SetActivatedState(bool state)
-    {
-        isActivated = state;
-    }
+    public void ResetRange() => playerInRange = false;
+    public void SetActivatedState(bool state) => isActivated = state;
 }

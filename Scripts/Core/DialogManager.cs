@@ -61,6 +61,7 @@ public class DialogManager : MonoBehaviour
     /// <param name="graph"></param>
     public void StartDialog(DialogNodeGraph graph)
     {
+
         playerInput.SwitchCurrentActionMap("Menu");
         Cursor.lockState = CursorLockMode.None;
         _dialogBehaviour.StartDialog(graph);

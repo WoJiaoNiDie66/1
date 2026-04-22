@@ -4,8 +4,6 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using static UnityEditor.Progress;
-
 
 //This is used to show the Armor Inventory.
 public class EquipmentSlotUI : SelectionUI, IPointerExitHandler

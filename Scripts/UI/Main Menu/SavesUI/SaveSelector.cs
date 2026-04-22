@@ -11,7 +11,9 @@ public class SaveSelector : SelectorManager
     public override void UIClicked(SelectionUI ui)
     {
         var saveUI = ui as SaveUI;
-
-        SceneManager.LoadScene("combat demo");
+        if (saveUI != null)
+        {
+            SceneManager.LoadScene("combat demo");
+        }
     }
 }

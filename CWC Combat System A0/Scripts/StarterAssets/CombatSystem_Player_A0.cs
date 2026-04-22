@@ -240,11 +240,10 @@ public class CombatSystem_Player_A0 : MonoBehaviour
                 float incomingDamageMultiplier = EquipmentManager.IncomingDamageMultiplier;
                 ValueEditing(H * temp_multiplier * incomingDamageMultiplier, F, S1, P * temp_multiplier);
             }
-            // if (currentHealth <= 0)
-            // {
-            //     Die();
-            //     return;
-            // }
+            if (currentHealth <= 0)
+            {
+                Die();
+            }
             // HandlePoiseBreak(damageData);
 
             curKB_dir = damageData.knockbackDirection;
@@ -529,6 +528,37 @@ public class CombatSystem_Player_A0 : MonoBehaviour
 
     public void Die()
     {
-        // Handle player death logic here (e.g., play death animation, disable controls, etc.)
+        if (isDead) return;
+
+        if (currentHealth <= 0)
+        {
+            isDead = true;
+
+            Debug.Log("<color=red>[Player Death]</color> Health reached 0! Starting 5-second reload timer...");
+            
+            // --- NEW: Start the reload timer ---
+            StartCoroutine(ReloadGameAfterDelay());
+        }
+    }
+
+        // --- NEW: Reload system ---
+    private bool isDead = false;
+
+    private System.Collections.IEnumerator ReloadGameAfterDelay()
+    {
+        // 1. Wait for 3 real-time seconds
+        // (We use WaitForSecondsRealtime just in case your death logic sets Time.timeScale to 0)
+        yield return new WaitForSecondsRealtime(5f);
+
+        // 2. Safely call the LoadGame function
+        if (SaveManager.Instance != null)
+        {
+            Debug.Log("<color=red>[Player Death]</color> 5 seconds passed. Triggering SaveManager.LoadGame(true)!");
+            SaveManager.Instance.LoadGame(true);
+        }
+        else
+        {
+            Debug.LogError("<color=red>[Player Death]</color> SaveManager.Instance is null! Could not reload game.");
+        }
     }
 }

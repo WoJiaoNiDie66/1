@@ -6,149 +6,132 @@ public class EnemyManager : MonoBehaviour
 {
     public static EnemyManager Instance { get; private set; }
 
-    // 所有活躍敵人列表
-    private List<BaseEnemy> activeEnemies = new List<BaseEnemy>();
-    
-    // Boss 註冊表：以名稱為鍵，便於查詢特定 Boss（shouldRespawn = false 的敵人）
-    private Dictionary<string, BaseEnemy> bossRegistry = new Dictionary<string, BaseEnemy>();
+    // 维持列表以兼容其他脚本的查询需求
+    private List<SkeletonSwordDecision> allEnemies = new List<SkeletonSwordDecision>();
+    private Dictionary<string, SkeletonSwordDecision> bossRegistry = new Dictionary<string, SkeletonSwordDecision>();
 
     private void Awake()
     {
-        // 單例模式實現
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
     }
 
     private void Start()
     {
-        // 啟動時掃描場景中的所有敵人
         RefreshEnemyList();
+        // 订阅检查点休息事件
+        EventManager.StartListening("OnCheckpointRest", OnCheckpointRest);
     }
 
-    /// <summary>
-    /// 刷新活躍敵人列表。掃描場景中所有 BaseEnemy 並分類。
-    /// 區分普通敵人與 Boss（根據 shouldRespawn 屬性）。
-    /// </summary>
-    public void RefreshEnemyList()
+    private void OnDestroy()
     {
-        activeEnemies.Clear();
-        bossRegistry.Clear();
+        EventManager.StopListening("OnCheckpointRest", OnCheckpointRest);
+    }
 
-        BaseEnemy[] enemies = FindObjectsOfType<BaseEnemy>();
+    // =======================================================
+    // 核心复活逻辑：触碰存档点时触发
+    // =======================================================
+    public void OnCheckpointRest()
+    {
+        // 【终极必杀技】：直接扫描场景中*所有*的骷髅怪，包含 SetActive(false) 躺在地上的死怪
+        SkeletonSwordDecision[] currentEnemies = FindObjectsOfType<SkeletonSwordDecision>(true);
+        int respawnCount = 0;
 
-        foreach (BaseEnemy enemy in enemies)
+        foreach (var enemy in currentEnemies)
         {
-            // 僅統計場景中啟用的敵人
-            if (enemy.gameObject.activeInHierarchy)
-            {
-                activeEnemies.Add(enemy);
+            if (enemy == null) continue;
 
-                // 若敵人的 shouldRespawn = false，則視為 Boss 並加入 Boss 註冊表
-                if (!enemy.ShouldRespawn)
+            if (enemy.shouldRespawn)
+            {
+                // 普通怪：无论死活，强行复活
+                enemy.ResetEnemy();
+                respawnCount++;
+            }
+            else
+            {
+                // Boss：如果没有死，则回满血；如果已经死了，则无视
+                if (!enemy.IsDead())
                 {
-                    bossRegistry[enemy.name] = enemy;
+                    enemy.ResetEnemy();
                 }
             }
         }
 
-        Debug.Log($"EnemyManager: 找到 {activeEnemies.Count} 個活躍敵人。");
+        Debug.Log($"<color=cyan>[EnemyManager]</color> 存档点休息完毕。强行扫描并复活了 {respawnCount} 个敌人。");
     }
 
-    /// <summary>
-    /// 取得所有活躍敵人。
-    /// </summary>
-    public List<BaseEnemy> GetActiveEnemies()
-    {
-        return new List<BaseEnemy>(activeEnemies);
-    }
+    // =======================================================
+    // 恢复给其他脚本（如 LevelManager）调用的 API
+    // =======================================================
 
     /// <summary>
-    /// 透過名稱取得特定 Boss（shouldRespawn = false 的敵人）。
-    /// </summary>
-    public BaseEnemy GetBoss(string bossName)
-    {
-        if (bossRegistry.TryGetValue(bossName, out BaseEnemy enemy))
-        {
-            return enemy;
-        }
-        return null;
-    }
-
-    /// <summary>
-    /// 註冊新生成的敵人。通常由 EnemySpawner 調用。
-    /// </summary>
-    public void RegisterEnemy(BaseEnemy enemy)
-    {
-        if (!activeEnemies.Contains(enemy))
-        {
-            activeEnemies.Add(enemy);
-        }
-
-        // 若是 Boss，也加入 Boss 註冊表
-        if (!enemy.ShouldRespawn)
-        {
-            bossRegistry[enemy.name] = enemy;
-        }
-    }
-
-    /// <summary>
-    /// 反註冊敵人（通常在敵人死亡或銷毀時呼叫）。
-    /// </summary>
-    public void UnregisterEnemy(BaseEnemy enemy)
-    {
-        activeEnemies.Remove(enemy);
-
-        if (!enemy.ShouldRespawn)
-        {
-            bossRegistry.Remove(enemy.name);
-        }
-    }
-
-    /// <summary>
-    /// 取得活躍敵人數量。
-    /// </summary>
-    public int GetActiveEnemyCount()
-    {
-        return activeEnemies.Count;
-    }
-
-    /// <summary>
-    /// 重生所有 shouldRespawn = true 的敵人（不包含 Boss）。
-    /// 通常在檢查點休息時調用。
+    /// 供 LevelManager 等外部脚本调用的复活方法
     /// </summary>
     public void RespawnRegularEnemies()
     {
-        foreach (BaseEnemy enemy in activeEnemies)
+        SkeletonSwordDecision[] currentEnemies = FindObjectsOfType<SkeletonSwordDecision>(true);
+        foreach (var enemy in currentEnemies)
         {
-            // 僅重生 shouldRespawn = true 且已死亡的敵人
-            if (enemy.ShouldRespawn && enemy.IsDead)
+            if (enemy != null && enemy.shouldRespawn)
             {
                 enemy.ResetEnemy();
-                enemy.gameObject.SetActive(true);
             }
         }
-
-        Debug.Log("EnemyManager: 普通敵人已重生。");
+        Debug.Log("EnemyManager: 普通敌人已重生 (由外部调用)。");
     }
 
     /// <summary>
-    /// 清除所有 shouldRespawn = true 的敵人（不包含 Boss）。
+    /// 供 LevelManager 等外部脚本调用的清除方法
     /// </summary>
     public void DespawnAllRegularEnemies()
     {
-        // 使用臨時列表以避免在迭代中修改原列表
-        foreach (BaseEnemy enemy in new List<BaseEnemy>(activeEnemies))
+        SkeletonSwordDecision[] currentEnemies = FindObjectsOfType<SkeletonSwordDecision>(true);
+        foreach (var enemy in currentEnemies)
         {
-            if (enemy.ShouldRespawn)
+            if (enemy != null && enemy.shouldRespawn)
             {
                 enemy.gameObject.SetActive(false);
             }
         }
+    }
+
+    public void RefreshEnemyList()
+    {
+        allEnemies.Clear();
+        bossRegistry.Clear();
+        SkeletonSwordDecision[] enemies = FindObjectsOfType<SkeletonSwordDecision>(true);
+        foreach (var enemy in enemies)
+        {
+            allEnemies.Add(enemy);
+            if (!enemy.shouldRespawn) bossRegistry[enemy.gameObject.name] = enemy;
+        }
+    }
+
+    public void RegisterEnemy(SkeletonSwordDecision enemy)
+    {
+        if (!allEnemies.Contains(enemy)) allEnemies.Add(enemy);
+        if (!enemy.shouldRespawn) bossRegistry[enemy.gameObject.name] = enemy;
+    }
+
+    public void UnregisterEnemy(SkeletonSwordDecision enemy)
+    {
+        allEnemies.Remove(enemy);
+        if (!enemy.shouldRespawn) bossRegistry.Remove(enemy.gameObject.name);
+    }
+
+    public List<SkeletonSwordDecision> GetActiveEnemies()
+    {
+        return new List<SkeletonSwordDecision>(allEnemies);
+    }
+
+    public SkeletonSwordDecision GetBoss(string bossName)
+    {
+        if (bossRegistry.TryGetValue(bossName, out SkeletonSwordDecision boss)) return boss;
+        return null;
+    }
+
+    public int GetActiveEnemyCount()
+    {
+        return allEnemies.Count;
     }
 }

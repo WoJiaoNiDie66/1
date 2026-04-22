@@ -5,10 +5,10 @@ using UnityEngine.SceneManagement;
 public class EnemySpawner : MonoBehaviour
 {
     [Header("生成設定")]
-    [SerializeField] private BaseEnemy enemyPrefab;              // 要生成的敵人 Prefab
+    [SerializeField] private SkeletonSwordDecision enemyPrefab;              // 替換為 SkeletonSwordDecision
     [SerializeField] private bool shouldRespawnAfterCheckpoint = true;  // 是否在檢查點休息後重生
 
-    private BaseEnemy spawnedEnemy;   // 已生成的敵人實例
+    private SkeletonSwordDecision spawnedEnemy;   // 已生成的敵人實例
     private Vector3 spawnPosition;    // 生成點位置
 
     private void Start()
@@ -43,6 +43,9 @@ public class EnemySpawner : MonoBehaviour
         // 實例化敵人 Prefab
         spawnedEnemy = Instantiate(enemyPrefab, spawnPosition, Quaternion.identity);
 
+        // --- NEW: 去掉 "(Clone)" 後綴，保證存檔系統能根據名字準確識別 ---
+        spawnedEnemy.gameObject.name = enemyPrefab.gameObject.name;
+
         // 將敵人移到當前級別場景
         Scene currentLevelScene = gameObject.scene;
         if (currentLevelScene.IsValid())
@@ -67,10 +70,18 @@ public class EnemySpawner : MonoBehaviour
     /// </summary>
     private void OnCheckpointRest()
     {
-        if (shouldRespawnAfterCheckpoint && spawnedEnemy != null && spawnedEnemy.IsDead)
+        // 判斷是否死亡 (血量 <= 0 或者 GameObject 被隱藏)
+        bool isDead = spawnedEnemy != null && 
+                      (!spawnedEnemy.gameObject.activeInHierarchy || 
+                       spawnedEnemy._playerMain._combatSystem.currentHealth <= 0);
+
+        if (shouldRespawnAfterCheckpoint && isDead)
         {
             // 重置敵人狀態
-            spawnedEnemy.ResetEnemy();
+            // ---------------------------------------------------------
+            // TODO: 請替換下方的 100f 為你的最大血量變數 (例如 maxHealth)
+            // ---------------------------------------------------------
+            spawnedEnemy._playerMain._combatSystem.currentHealth = 100f;
             
             // 重新啟用敵人
             spawnedEnemy.gameObject.SetActive(true);

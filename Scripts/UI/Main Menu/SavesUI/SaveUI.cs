@@ -11,8 +11,8 @@ using UnityEngine.UI;
 public class SaveUI : SelectionUI
 {
     //Descriptions of the Save. e.g. Save name, save progression, etc.
-    [SerializeField]
-    private TextMeshProUGUI[] descs; 
+    //[SerializeField]
+    //private TextMeshProUGUI[] descs; 
 
     /// <summary>
     /// borderSprites[0] is Selected Border,
@@ -39,4 +39,5 @@ public class SaveUI : SelectionUI
     {
 
     }
+
 }

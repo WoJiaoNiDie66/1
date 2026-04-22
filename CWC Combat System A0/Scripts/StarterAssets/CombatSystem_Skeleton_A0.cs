@@ -505,4 +505,42 @@ public class CombatSystem_Skeleton_A0 : MonoBehaviour
     {
         // Handle player death logic here (e.g., play death animation, disable controls, etc.)
     }
+
+    public void ResetCombatStatus()
+    {
+        // 1. 重置所有基础数值
+        currentHealth = maxHealth;
+        currentFocus = maxFocus;
+        currentStamina = maxStamina;
+        currentPoise = maxPoise;
+
+        // 2. 清除硬直和受击状态
+        curKB_dir = Vector3.forward;
+        curKB_index = 0;
+        curKB_getHit = 0;
+        curKB_getHitTimeout = 1f;
+        curKB_getHitType = 1;
+
+        // 3. 清空【致命内鬼】：伤害队列与数值编辑队列
+        lock (_damageLock)
+        {
+            currentPendingDamageDataList.Clear();
+        }
+        lock (_veLock)
+        {
+            currentPendingVEList.Clear();
+        }
+
+        // 4. 清空奖励队列并强制关闭所有判定框
+        foreach (var hitbox in hitboxes)
+        {
+            lock (hitbox._rewardLock)
+            {
+                hitbox.currentPendingRewardList.Clear();
+            }
+            hitbox.DisableHitbox();
+        }
+
+        Debug.Log("<color=yellow>[CombatSystem]</color> 战斗系统已彻底洗清所有负面与残留状态！");
+    }
 }
