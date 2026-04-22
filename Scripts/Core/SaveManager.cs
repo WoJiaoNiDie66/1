@@ -9,42 +9,115 @@ public class SaveManager : MonoBehaviour
 {
     public static SaveManager Instance { get; private set; }
 
+    public static int ActiveSlot { get; set; } = 0;
+
+    private const int SLOT_COUNT = 3;
+
     private string saveFilePath;
     public SaveData CurrentSaveData { get; private set; } = new SaveData();
 
     private bool isReloadingScene = false;
     private float lastLoadTime = -1f;
 
+    private const string DEFAULT_SAVE_JSON =
+        "{\"id\":0,\"currentCheckpoint\":\"StartingCheckpoint\"," +
+        "\"activatedCheckpoints\":[\"StartingCheckpoint\"]," +
+        "\"unlockedCharmIds\":[]," +
+        "\"unlockedItemIds\":[]," +
+        "\"equippedItemIds\":[]," +
+        "\"equippedCharmIds\":[]," +
+        "\"openedChestIds\":[]," +
+        "\"unlockedSkillIds\":[]," +
+        "\"defeatedBossNames\":[]," +
+        "\"qLearningStats\":[]}";
+
+    // ─── The name of your gameplay scene ───
+    private const string GAME_SCENE_NAME = "combat demo";
+    private const string MENU_SCENE_NAME = "Main Menu";
+
     private void Awake()
     {
-        // 单例模式初始化
         if (Instance != null && Instance != this) { Destroy(gameObject); return; }
         Instance = this;
         DontDestroyOnLoad(gameObject);
-        saveFilePath = Path.Combine(Application.persistentDataPath, "gamesave.json");
+        RefreshFilePath();
     }
 
-    private void Start()
+    private void OnEnable()
     {
-        // 【优化】游戏启动时延迟一帧加载，确保 CheckpointManager 等单例已就绪
-        StartCoroutine(InitialLoadRoutine());
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    private void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    /// <summary>
+    /// Fires every time any scene finishes loading.
+    /// We only act when entering the gameplay scene.
+    /// </summary>
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (scene.name == GAME_SCENE_NAME)
+        {
+            StartCoroutine(InitialLoadRoutine());
+        }
     }
 
     private IEnumerator InitialLoadRoutine()
     {
-        yield return null; // 等待第一帧
-        LoadGame(true); 
-        Debug.Log("<color=cyan>[SaveManager]</color> 游戏启动：已自动加载存档并执行传送。");
+        yield return null; // wait one frame for other singletons to Awake
+        LoadGame(true);
+        Debug.Log($"<color=cyan>[SaveManager]</color> Scene loaded: applied slot {ActiveSlot}.");
     }
 
     /// <summary>
-    /// 保存游戏存档
+    /// Call this before returning to the main menu to clear transient state.
     /// </summary>
+    public void PrepareForMainMenu()
+    {
+        // Stop any in-progress reload coroutine so it doesn't bleed into the next session.
+        StopAllCoroutines();
+        isReloadingScene = false;
+        lastLoadTime = -1f;
+        CurrentSaveData = new SaveData();
+        Debug.Log("[SaveManager] State cleared for main menu return.");
+    }
+
+    private void RefreshFilePath()
+    {
+        saveFilePath = Path.Combine(Application.persistentDataPath, $"gamesave_{ActiveSlot}.json");
+    }
+
+    // ─── Public slot helpers ───────────────────────────────────
+
+    public static bool SlotExists(int slot)
+    {
+        string path = Path.Combine(Application.persistentDataPath, $"gamesave_{slot}.json");
+        return File.Exists(path);
+    }
+
+    public static SaveData PeekSlot(int slot)
+    {
+        string path = Path.Combine(Application.persistentDataPath, $"gamesave_{slot}.json");
+        if (!File.Exists(path)) return null;
+        return JsonUtility.FromJson<SaveData>(File.ReadAllText(path));
+    }
+
+    public static void DeleteSlot(int slot)
+    {
+        string path = Path.Combine(Application.persistentDataPath, $"gamesave_{slot}.json");
+        if (File.Exists(path)) File.Delete(path);
+    }
+
+    // ─── Core Save / Load ─────────────────────────────────────
+
     public void SaveGame(Checkpoint currentCheckpoint)
     {
-        Debug.Log("Save Game.");
+        Debug.Log($"Save Game (Slot {ActiveSlot}).");
+        RefreshFilePath();
 
-        // --- Checkpoints, Charms, Inventory, Chests, Skills ---
         if (currentCheckpoint != null)
             CheckpointManager.Instance.SetCurrentCheckpoint(currentCheckpoint);
 
@@ -81,10 +154,8 @@ public class SaveManager : MonoBehaviour
             }
         }
 
-        // --- Bosses & Q-Learning ---
         SkeletonSwordDecision[] allEnemies = FindObjectsOfType<SkeletonSwordDecision>(true);
-        
-        // 这里的逻辑是：如果 shouldRespawn 为 false 且已死亡，则记入存档
+
         foreach (var enemy in allEnemies)
         {
             if (!enemy.shouldRespawn && enemy.IsDead())
@@ -107,21 +178,20 @@ public class SaveManager : MonoBehaviour
         }
 
         File.WriteAllText(saveFilePath, JsonUtility.ToJson(CurrentSaveData, true));
-        Debug.Log($"[SaveManager] Saved game to: {saveFilePath}");
+        Debug.Log($"[SaveManager] Saved to: {saveFilePath}");
     }
 
-    /// <summary>
-    /// 加载游戏存档
-    /// </summary>
     public void LoadGame(bool teleportPlayerToCurrentCheckpoint = false)
     {
-        Debug.Log("Load Game.");
-        if (!File.Exists(saveFilePath)) return;
-        
-        string json = File.ReadAllText(saveFilePath);
+        Debug.Log($"Load Game (Slot {ActiveSlot}).");
+        RefreshFilePath();
+
+        string json = File.Exists(saveFilePath)
+            ? File.ReadAllText(saveFilePath)
+            : DEFAULT_SAVE_JSON;
+
         CurrentSaveData = JsonUtility.FromJson<SaveData>(json) ?? new SaveData();
 
-        // 如果不是刚进游戏（运行时间超过0.5秒），则需要重载场景
         if (Time.timeSinceLevelLoad > 0.5f)
         {
             if (!isReloadingScene) StartCoroutine(ReloadSceneAndApply(teleportPlayerToCurrentCheckpoint));
@@ -143,16 +213,11 @@ public class SaveManager : MonoBehaviour
         isReloadingScene = false;
     }
 
-    /// <summary>
-    /// 将存档数据应用到场景中的对象
-    /// </summary>
     private void ApplySaveData(bool teleportPlayerToCurrentCheckpoint)
     {
-        // 防御性编程：防止 GameBootstrapper 和 InitialLoadRoutine 在同一帧内双重加载
         if (Time.unscaledTime - lastLoadTime < 0.1f) return;
         lastLoadTime = Time.unscaledTime;
 
-        // --- Restore Bridges & Chests ---
         CheckpointManager.Instance.RestoreCheckpointState(CurrentSaveData.activatedCheckpoints, CurrentSaveData.currentCheckpoint);
 
         if (CharmSaveBridge.Instance != null)
@@ -163,29 +228,23 @@ public class SaveManager : MonoBehaviour
 
         ChestController[] chestsInScene = FindObjectsOfType<ChestController>();
         foreach (var chest in chestsInScene)
-        {
-            bool wasOpened = CurrentSaveData.openedChestIds.Contains(chest.ChestID);
-            chest.LoadState(wasOpened);
-        }
+            chest.LoadState(CurrentSaveData.openedChestIds.Contains(chest.ChestID));
 
         if (SkillSaveBridge.Instance != null)
             SkillSaveBridge.Instance.LoadState(CurrentSaveData.unlockedSkillIds);
 
-
-        // --- Bosses & Q-Learning ---
         SkeletonSwordDecision[] allEnemies = FindObjectsOfType<SkeletonSwordDecision>(true);
 
         foreach (var enemy in allEnemies)
         {
-            // 处理 Boss (shouldRespawn 为 false 的怪)
             if (!enemy.shouldRespawn)
             {
                 if (CurrentSaveData.defeatedBossNames.Contains(enemy.gameObject.name))
-                    enemy.gameObject.SetActive(false); // 已击败的 Boss 隐藏
+                    enemy.gameObject.SetActive(false);
                 else
                 {
                     enemy.gameObject.SetActive(true);
-                    enemy.ResetEnemy(); // 未击败的 Boss 重置血量和位置
+                    enemy.ResetEnemy();
                 }
             }
         }
@@ -203,15 +262,14 @@ public class SaveManager : MonoBehaviour
             }
         }
 
-        // 【新增修复】执行传送玩家到存档点 T 位置的逻辑
-        if (teleportPlayerToCurrentCheckpoint && CheckpointManager.Instance != null && !string.IsNullOrEmpty(CurrentSaveData.currentCheckpoint))
+        if (teleportPlayerToCurrentCheckpoint && CheckpointManager.Instance != null &&
+            !string.IsNullOrEmpty(CurrentSaveData.currentCheckpoint))
         {
             Checkpoint[] allCheckpoints = FindObjectsOfType<Checkpoint>(true);
             foreach (var cp in allCheckpoints)
             {
                 if (cp.CheckpointName == CurrentSaveData.currentCheckpoint)
                 {
-                    // 呼叫 CheckpointManager 进行物理传送（会使用我们设定的位置 T）
                     CheckpointManager.Instance.TeleportPlayerTo(cp);
                     break;
                 }

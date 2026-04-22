@@ -1,20 +1,19 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public class ExitButton : MonoBehaviour
 {
+    public void ExitToMenu()
+    {
+        // Reset SaveManager's runtime state so the next slot load starts clean.
+        if (SaveManager.Instance != null)
+            SaveManager.Instance.PrepareForMainMenu();
 
-    public void ExitToMenu() 
-    { 
-        SceneManager.LoadScene("Main Menu");
+        SceneManager.LoadScene("Main Menu Scene");
     }
 
     public void ExitGame()
     {
         Application.Quit();
     }
-
 }
