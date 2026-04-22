@@ -1,11 +1,16 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class ExitButton : MonoBehaviour
 {
     public void ExitToMenu()
     {
-        // Reset SaveManager's runtime state so the next slot load starts clean.
+        // Make sure the game is no longer paused
+        Time.timeScale = 1f;
+        AudioListener.pause = false;
+
+        // Clear SaveManager runtime state too
         if (SaveManager.Instance != null)
             SaveManager.Instance.PrepareForMainMenu();
 

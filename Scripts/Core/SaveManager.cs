@@ -77,11 +77,14 @@ public class SaveManager : MonoBehaviour
     /// </summary>
     public void PrepareForMainMenu()
     {
-        // Stop any in-progress reload coroutine so it doesn't bleed into the next session.
         StopAllCoroutines();
         isReloadingScene = false;
         lastLoadTime = -1f;
         CurrentSaveData = new SaveData();
+
+        Time.timeScale = 1f;
+        AudioListener.pause = false;
+
         Debug.Log("[SaveManager] State cleared for main menu return.");
     }
 
