@@ -355,7 +355,7 @@ public class CombatSystem_Player_A0 : MonoBehaviour
         // _animator.SetFloat(_animIDStance, currentStance);
         // _playerMain.
 
-        ActiveGameUIManager.onPlayerStatsChanged?.Invoke(((int)currentHealth, (int)currentFocus, (int)currentStamina, (int)maxHealth, (int)maxFocus, (int)maxStamina));
+        ActiveGameUIManager.OnPlayerStatsChanged?.Invoke(((int)currentHealth, (int)currentFocus, (int)currentStamina, (int)maxHealth, (int)maxFocus, (int)maxStamina));
 
     }
 

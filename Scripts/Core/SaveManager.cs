@@ -33,7 +33,7 @@ public class SaveManager : MonoBehaviour
 
     // ─── The name of your gameplay scene ───
     private const string GAME_SCENE_NAME = "combat demo";
-    private const string MENU_SCENE_NAME = "Main Menu";
+    private const string MENU_SCENE_NAME = "Main Menu Scene";
 
     private void Awake()
     {
@@ -118,6 +118,8 @@ public class SaveManager : MonoBehaviour
         Debug.Log($"Save Game (Slot {ActiveSlot}).");
         RefreshFilePath();
 
+        // --- Checkpoints, Charms, Inventory, Chests, Skills ---
+
         if (currentCheckpoint != null)
             CheckpointManager.Instance.SetCurrentCheckpoint(currentCheckpoint);
 
@@ -142,6 +144,23 @@ public class SaveManager : MonoBehaviour
             if (chest.HasBeenOpened && !CurrentSaveData.openedChestIds.Contains(chest.ChestID))
                 CurrentSaveData.openedChestIds.Add(chest.ChestID);
         }
+
+        SaveableInteractable[] allInteractables = FindObjectsOfType<SaveableInteractable>(true);
+
+        foreach (var interactable in allInteractables)
+        {
+            // 2. 检查它是否需要被保存，并且已经被交互过
+            if (interactable.requireSaveState && interactable.hasBeenInteracted)
+            {
+                // 3. 记录它的 uniqueID 到你的 SaveData 列表里
+                if (!CurrentSaveData.interactedObjectIds.Contains(interactable.uniqueID))
+                {
+                    CurrentSaveData.interactedObjectIds.Add(interactable.uniqueID);
+                }
+            }
+        }
+
+        // --- Bosses & Q-Learning ---
 
         SkillNodeUI[] skillNodes = FindObjectsOfType<SkillNodeUI>(true);
         foreach (var node in skillNodes)
@@ -218,6 +237,8 @@ public class SaveManager : MonoBehaviour
         if (Time.unscaledTime - lastLoadTime < 0.1f) return;
         lastLoadTime = Time.unscaledTime;
 
+        // --- Restore Save Bridges & Chests ---
+
         CheckpointManager.Instance.RestoreCheckpointState(CurrentSaveData.activatedCheckpoints, CurrentSaveData.currentCheckpoint);
 
         if (CharmSaveBridge.Instance != null)
@@ -232,6 +253,22 @@ public class SaveManager : MonoBehaviour
 
         if (SkillSaveBridge.Instance != null)
             SkillSaveBridge.Instance.LoadState(CurrentSaveData.unlockedSkillIds);
+
+        SaveableInteractable[] allInteractables = FindObjectsOfType<SaveableInteractable>(true);
+
+        foreach (var interactable in allInteractables)
+        {
+            // 检查这个物体的 ID 是否在我们的“已交互”名单里
+            if (CurrentSaveData.interactedObjectIds.Contains(interactable.uniqueID))
+            {
+                // 如果在名单里，强行让它执行“恢复逻辑”（即触发你在面板里绑定的 On Load Already Interacted 事件）
+                interactable.RestoreState(); 
+                
+                Debug.Log($"<color=yellow>[Load]</color> 物体 {interactable.gameObject.name} 已根据存档自动复原状态。");
+            }
+        }
+
+        // --- Bosses & Q-Learning ---
 
         SkeletonSwordDecision[] allEnemies = FindObjectsOfType<SkeletonSwordDecision>(true);
 

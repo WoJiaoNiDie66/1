@@ -40,7 +40,7 @@ public class NPC : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             _currentlyInteracting = true;
-            DialogManager.Instance.OpenMessage($"Chat to {characterName} (F)");
+            InteractableManager.Instance.OpenMessage($"Chat to {characterName} (F)");
         }
     }
 
@@ -57,7 +57,7 @@ public class NPC : MonoBehaviour
         {
             IsInteracting = false;
             _currentlyInteracting = false;
-            DialogManager.Instance.CloseMessage();
+            InteractableManager.Instance.CloseMessage();
         }
     }
 

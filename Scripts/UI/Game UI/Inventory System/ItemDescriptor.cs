@@ -20,12 +20,11 @@ public class ItemDescriptor : MonoBehaviour
 
     private void Start()
     {
-
+        ResetDescription();
     }
 
     public void SetDescription(ItemData item,bool equipped)
     {
-
         itemImage.gameObject.SetActive(true);
         itemName.text = "Name: " + item.ItemName;
         itemDescription.text = "Description: " + item.ItemDescription;

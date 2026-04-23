@@ -57,26 +57,13 @@ public class KeyBindManager : MonoBehaviour
         chooseKeyPanel.SetActive(false);
     }
 
-    public void StartBinding()
-    {
-        IsActive = true;
-        playerInput.SwitchCurrentActionMap("Rebind");
-        OpenPanel();
-    }
-
-    public void EndBinding()
-    {
-        IsActive = false;
-        playerInput.SwitchCurrentActionMap("Player");
-        ClosePanel();
-    }
-
     public void StartBinding(InputActionReference actionReference)
     {
+
         OpenPanel();
         actionReference.action.Disable();
         playerInput.SwitchCurrentActionMap("Rebind");
-        Debug.Log("Binding");
+
         rebindingOperation = actionReference.action.PerformInteractiveRebinding()
             .WithControlsExcluding("Mouse")
             .OnMatchWaitForAnother(0.1f)

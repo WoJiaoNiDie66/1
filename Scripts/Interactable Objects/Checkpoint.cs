@@ -23,6 +23,10 @@ public class Checkpoint : MonoBehaviour
     [Tooltip("玩家传送的具体位置与朝向 (位置 T)")]
     [SerializeField] private Transform spawnPointT; 
 
+    // 在 Checkpoint.cs 的 Header("Spawn Settings") 附近添加
+    [Header("Map Optimization")]
+    [SerializeField] public MapNode assignedMap; // 该存档点所属的地图节点
+
     public string CheckpointName => checkpointName;
     
     // 【恢复】使用位置 T 逻辑，如果没设 T 则用存档点中心

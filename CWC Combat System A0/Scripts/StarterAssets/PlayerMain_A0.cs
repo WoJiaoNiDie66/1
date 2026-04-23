@@ -47,6 +47,10 @@ using UnityEngine.InputSystem;
             }
         }
 
+        private int coins = 0;
+
+        public int Coins => coins;
+
         // movement
         public float _speed = 0f;
         public const float SpeedChangeRate = 10.0f;
@@ -630,4 +634,9 @@ using UnityEngine.InputSystem;
                 _animator.SetFloat(_playerDecision._animIDVV, _verticalVelocity);
             }
         }
-    }
+
+        public void IncrementCoinCount(int coin)
+        {
+            this.coins += coin;
+        }
+}

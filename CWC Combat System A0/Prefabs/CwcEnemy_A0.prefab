@@ -4130,6 +4130,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f283b05e76024f24cb7a58a74a76a26c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  shouldRespawn: 1
   _playerMain: {fileID: 6546896182079776633}
   battleSkills:
   - {fileID: 3306891393855723223}
@@ -10032,6 +10033,7 @@ MonoBehaviour:
     m_Bits: 8
   allowMultiHit: 1
   singleHitPerTarget: 1
+  equipmentDamageMultiplier: 1
   showDebug: 1
   debugColor: {r: 1, g: 0, b: 0, a: 0.3}
   currentPendingRewardList: []

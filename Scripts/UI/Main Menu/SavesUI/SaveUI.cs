@@ -36,7 +36,7 @@ public class SaveUI : SelectionUI
     }
 
     /// <summary>
-    /// Call this from SaveSelector after instantiation to populate slot info.
+    /// Called from SaveSelector.Start() to populate slot info.
     /// </summary>
     public void InitializeUI(int slot)
     {
@@ -48,14 +48,18 @@ public class SaveUI : SelectionUI
 
         if (data == null)
         {
-            // Empty slot
-            descs[0].text = $"Slot {slot + 1}";
-            if (descs.Length > 1) descs[1].text = "New Game";
+            descs[0].text = "New Game";
         }
         else
         {
-            descs[0].text = $"Slot {slot + 1}";
-            if (descs.Length > 1) descs[1].text = $"Checkpoint: {data.currentCheckpoint}";
+            int skillCount = data.unlockedSkillIds?.Count ?? 0;
+            int charmCount = data.unlockedCharmIds?.Count ?? 0;
+            int itemCount  = data.unlockedItemIds?.Count  ?? 0;
+
+            descs[0].text = $"Checkpoint: {data.currentCheckpoint}\n" +
+                            $"Skills: {skillCount}\n" +
+                            $"Charms: {charmCount}\n" +
+                            $"Items: {itemCount}";
         }
     }
 }

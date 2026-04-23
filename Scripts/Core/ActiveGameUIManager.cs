@@ -10,9 +10,10 @@ using UnityEngine.UI;
 public class ActiveGameUIManager : MonoBehaviour
 {
 
-    public static UnityAction<(float,float,float,float,float,float)> onPlayerStatsChanged;
-    public static UnityAction<int> onPlayerHealPotionUsed;
-    public static UnityAction onPlayerStatsReset;
+    public static UnityAction<(float,float,float,float,float,float)> OnPlayerStatsChanged;
+    public static UnityAction<int> OnPlayerCoinColleceted;
+    public static UnityAction<int> OnPlayerHealPotionUsed;
+    public static UnityAction OnPlayerStatsReset;
     public static bool isPaused = false;
 
     [SerializeField]
@@ -23,6 +24,9 @@ public class ActiveGameUIManager : MonoBehaviour
 
     [SerializeField]
     private PlayerInput playerInput;
+
+    [SerializeField]
+    private PlayerMain_A0 player;
 
     /// <summary>
     /// elementsUI[0]: Health UI
@@ -35,18 +39,23 @@ public class ActiveGameUIManager : MonoBehaviour
     [SerializeField]
     private PotionUI potionUI;
 
+    [SerializeField]
+    private CoinUI coinUI;
+
     private void Awake()
     {
-        onPlayerStatsChanged += UpdateElementUIs;
-        onPlayerStatsReset += InitializeElementUIs;
-        onPlayerHealPotionUsed += UpdateHealPotionUI;
+        OnPlayerStatsChanged += UpdateElementUIs;
+        OnPlayerStatsReset += InitializeElementUIs;
+        OnPlayerHealPotionUsed += UpdateHealPotionUI;
+        OnPlayerCoinColleceted += UpdateCoinUI;
     }
 
     private void OnDestroy()
     {
-        onPlayerStatsChanged -= UpdateElementUIs;
-        onPlayerStatsReset -= InitializeElementUIs;
-        onPlayerHealPotionUsed -= UpdateHealPotionUI;
+        OnPlayerStatsChanged -= UpdateElementUIs;
+        OnPlayerStatsReset -= InitializeElementUIs;
+        OnPlayerHealPotionUsed -= UpdateHealPotionUI;
+        OnPlayerCoinColleceted -= UpdateCoinUI;
     }
 
     private void Start()
@@ -151,5 +160,23 @@ public class ActiveGameUIManager : MonoBehaviour
         potionUI.UpdateUI(charge);
     }
 
+    private void UpdateCoinUI(int coinCount)
+    {
+        if(player == null)
+        {
+            Debug.LogError("Player reference is missing in ActiveGameUIManager");
+            return;
+        }
+
+        if (coinUI == null)
+        {
+            Debug.LogError("Coin UI reference is missing in ActiveGameUIManager");
+            return;
+        }
+        
+        player.IncrementCoinCount(coinCount);
+        coinUI.updateCount(player.Coins);
+
+    }
 
 }

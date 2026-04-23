@@ -25,7 +25,6 @@ public class SettingSelector : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log(KeyBindManager.IsActive);
         if (KeyBindManager.IsActive) return;
 
         if (Input.GetKeyDown(KeyCode.W))

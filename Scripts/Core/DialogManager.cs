@@ -35,9 +35,6 @@ public class DialogManager : MonoBehaviour
     private DialogBehaviour _dialogBehaviour;
 
     [SerializeField]
-    private TextMeshProUGUI openInteractUI;
-
-    [SerializeField]
     private PlayerInput playerInput;
 
     private void Awake()
@@ -61,7 +58,6 @@ public class DialogManager : MonoBehaviour
     /// <param name="graph"></param>
     public void StartDialog(DialogNodeGraph graph)
     {
-
         playerInput.SwitchCurrentActionMap("Menu");
         Cursor.lockState = CursorLockMode.None;
         _dialogBehaviour.StartDialog(graph);
@@ -71,17 +67,6 @@ public class DialogManager : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.Locked;
         playerInput.SwitchCurrentActionMap("Player");
-    }
-
-    public void OpenMessage(string text)
-    {
-        openInteractUI.text = text;
-        openInteractUI.gameObject.SetActive(true);
-    }
-
-    public void CloseMessage()
-    {
-        openInteractUI.gameObject.SetActive(false);
     }
 
     //Place all the External function below.

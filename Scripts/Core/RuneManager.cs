@@ -26,14 +26,14 @@ public class RuneManager : MonoBehaviour
     public GameObject readMessageUI;
     public TMP_Text readContentText;
     public TMP_Text readLikesText;
-    [SerializeField] private TextMeshProUGUI openMessageUI;
     [SerializeField] private PlayerInput playerInput;
 
     private FirebaseFirestore db;
-    private const int CHUNK_SIZE = 50; 
+    private const int CHUNK_SIZE = 50;
     private Dictionary<string, GameObject> spawnedStones = new Dictionary<string, GameObject>();
 
     private bool isTyping;
+
 
     void Awake() { Instance = this; }
 
@@ -42,7 +42,6 @@ public class RuneManager : MonoBehaviour
         // 游戏开始时隐藏所有 UI 并锁定鼠标
         if (writeMessageUI != null) writeMessageUI.SetActive(false);
         if (readMessageUI != null) readMessageUI.SetActive(false);
-        if (openMessageUI != null) openMessageUI.gameObject.SetActive(false);
 
         //LockCursor(true);
 
@@ -55,14 +54,9 @@ public class RuneManager : MonoBehaviour
         FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task => {
             if (task.Result == DependencyStatus.Available) {
                 db = FirebaseFirestore.DefaultInstance;
-                Debug.Log("[System] Firebase connected, scanning for nearby runes...");
+                Debug.Log("[System] Firebase connected, loading ALL runes...");
                 
-                // 确保有玩家引用后再加载区块
-                if (playerTransform != null) {
-                    LoadRuneStonesInChunk(GetChunkId(playerTransform.position)); 
-                } else {
-                    Debug.LogWarning("Player Transform not assigned in RuneManager!");
-                }
+                LoadAllRuneStones(); // 【修改】：游戏启动时直接一把抓
             }
         });
     }
@@ -71,7 +65,7 @@ public class RuneManager : MonoBehaviour
     {
         if (db == null || Keyboard.current == null) return;
 
-        // 按 M 键打开/关闭留言界面（如果在看别人留言时，禁止按 M）
+        // 按 M 键打开/关闭留言界面
         if (Keyboard.current.mKey.wasPressedThisFrame && !readMessageUI.activeSelf && !isTyping) {
             ToggleWriteUI();
             isTyping = true;
@@ -95,17 +89,6 @@ public class RuneManager : MonoBehaviour
             LockCursor(true);
             playerInput.SwitchCurrentActionMap("Player");
         }
-    }
-
-    public void OpenMessage(string text)
-    {
-        openMessageUI.text = text;
-        openMessageUI.gameObject.SetActive(true);
-    }
-
-    public void CloseMessage()
-    {
-        openMessageUI.gameObject.SetActive(false);
     }
 
     // 供 RuneInteractable 靠近按 E 时调用
@@ -205,23 +188,23 @@ public class RuneManager : MonoBehaviour
         });
     }
 
-    public void LoadRuneStonesInChunk(string chunkId)
+    public void LoadAllRuneStones()
     {
-        Debug.Log($"[System] Searching cloud for runes in: {chunkId}...");
+        Debug.Log("[System] Searching cloud for all runes...");
 
-        db.Collection("runes").WhereEqualTo("chunk_id", chunkId)
-          .GetSnapshotAsync().ContinueWithOnMainThread((Task<QuerySnapshot> task) => {
+        // 【核心修改】：去掉 WhereEqualTo 的过滤条件，直接拿整个集合
+        db.Collection("runes").GetSnapshotAsync().ContinueWithOnMainThread((Task<QuerySnapshot> task) => {
               if (task.IsFaulted) {
                   Debug.LogError("Query failed: " + task.Exception);
                   return;
               }
               
               QuerySnapshot snapshot = task.Result;
-              Debug.Log($"[System] Found {snapshot.Count} runes in cloud!"); 
+              Debug.Log($"[System] Found {snapshot.Count} total runes in cloud!"); 
 
               foreach (DocumentSnapshot doc in snapshot.Documents) {
                   if (spawnedStones.ContainsKey(doc.Id)) continue;
-
+                  
                   RuneStoneData data = doc.ConvertTo<RuneStoneData>();
                   SpawnRuneStone(doc.Id, data);
               }

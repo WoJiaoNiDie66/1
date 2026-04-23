@@ -311,10 +311,20 @@ public class SkeletonSwordDecision : MonoBehaviour
     // 核心复活/回血函数
     public void ResetEnemy()
     {
-        // 1. 立即激活物体，让组件(Animator/Physics)在当前帧开始苏醒
+        // =========================================================
+        // 【新增逻辑】：判定是否允许复活
+        // 如果是 Boss (shouldRespawn = false) 且已经死了，则彻底跳过重置
+        // =========================================================
+        if (!shouldRespawn && IsDead())
+        {
+            Debug.Log($"<color=gray>[ResetEnemy]</color> {gameObject.name} 是已击败的Boss，跳过复活。");
+            return; 
+        }
+
+        // 1. 立即激活物体
         gameObject.SetActive(true);
         
-        // 2. 开启协程，延迟到下一帧（物理运算结束后）再强行修改状态
+        // 2. 开启协程，处理物理与状态重置
         StartCoroutine(ResetRoutine());
     }
 
@@ -384,8 +394,23 @@ public class SkeletonSwordDecision : MonoBehaviour
 
     public bool IsDead()
     {
+        // 1. 【最高优先级判定】：查阅“生死簿”
+        // 如果它是不重生的 Boss，并且它的名字已经在存档的击杀名单里，那它就是绝对死亡！
+        if (!shouldRespawn && SaveManager.Instance != null)
+        {
+            if (SaveManager.Instance.CurrentSaveData.defeatedBossNames.Contains(gameObject.name))
+            {
+                return true; 
+            }
+        }
+
+        // 2. 常规战斗血量判定
         if (_playerMain != null && _playerMain._combatSystem != null)
+        {
             return _playerMain._combatSystem.currentHealth <= 0;
+        }
+
+        // 3. 保底状态判定
         return !gameObject.activeInHierarchy;
     }
 }

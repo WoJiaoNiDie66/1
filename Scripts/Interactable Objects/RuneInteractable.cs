@@ -21,8 +21,8 @@ public class RuneInteractable : MonoBehaviour
     {
         if (other.CompareTag("Player")) {
             isPlayerNearby = true;
-            RuneManager.Instance.OpenMessage("Interact (F)\r\n\r\nLike (G)");
-            Debug.Log("[System] Rune discovered! Press E to read, F to like.");
+            InteractableManager.Instance.OpenMessage("Interact (F)\r\n\r\nLike (G)");
+            Debug.Log("[System] Rune discovered! Press F to read, G to like.");
         }
     }
 
@@ -31,7 +31,7 @@ public class RuneInteractable : MonoBehaviour
     {
         if (other.CompareTag("Player")) {
             isPlayerNearby = false;
-            RuneManager.Instance.CloseMessage();
+            InteractableManager.Instance.CloseMessage();
 
             // 安全机制：如果玩家在阅读时直接走开，自动关闭 UI
             if (RuneManager.Instance.readMessageUI != null && RuneManager.Instance.readMessageUI.activeSelf) {

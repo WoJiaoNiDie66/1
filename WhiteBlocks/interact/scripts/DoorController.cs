@@ -33,9 +33,19 @@ public class DoorController : MonoBehaviour
 
     void Update()
     {
+        // 玩家在范围内、门没在动、按下交互键(F1)
         if (playerInRange && !isMoving && Input.GetKeyDown(interactKey) && playerInteractable)
         {
-            StartCoroutine(ToggleDoorRoutine());
+            // 【核心修改】：不要自己开门了！去按那个“全自动存档总闸”！
+            SaveableInteractable saveSys = GetComponent<SaveableInteractable>();
+            if (saveSys != null)
+            {
+                saveSys.TriggerInteraction(); 
+            }
+            else
+            {
+                Debug.LogError("门上没挂 SaveableInteractable 脚本！");
+            }
         }
     }
 
@@ -85,5 +95,20 @@ public class DoorController : MonoBehaviour
     private void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("Player")) playerInRange = false;
+    }
+
+    // 这个方法对应你截图里的 On Interact 事件
+    public void OpenDoorSmoothly() 
+    {
+        // 调用你原本写的平滑旋转协程
+        if (!isMoving) StartCoroutine(ToggleDoorRoutine());
+    }
+
+    // 这个方法对应你截图里的 On Load Already Interacted 事件
+    public void InstantSnapToOpen()
+    {
+        // 瞬间归位，不播动画 (这里需要你自己之前的 closedRot 变量)
+        if (door06 != null) door06.localRotation = door06ClosedRot * Quaternion.Euler(0, door06OpenAngle, 0);
+        if (door05 != null) door05.localRotation = door05ClosedRot * Quaternion.Euler(0, door05OpenAngle, 0);
     }
 }

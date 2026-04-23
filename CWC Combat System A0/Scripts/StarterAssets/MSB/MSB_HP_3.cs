@@ -60,7 +60,7 @@ public class MSB_HP_3 : StateMachineBehaviour
         if (_playerMain._combatSystem.CanHeal() && currentHealCharges > 0)
         {
             currentHealCharges = Mathf.Max(currentHealCharges-1,0);
-            ActiveGameUIManager.onPlayerHealPotionUsed?.Invoke(currentHealCharges);
+            ActiveGameUIManager.OnPlayerHealPotionUsed?.Invoke(currentHealCharges);
             _playerMain._combatSystem.PushVE(_playerMain._combatSystem.VEDatas[0]); // 0 is heal
         }
         // other function

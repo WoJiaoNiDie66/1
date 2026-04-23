@@ -13,7 +13,6 @@ public class QLearningData
 [Serializable]
 public class SaveData
 {
-    public int id;
     public string currentCheckpoint;
     public List<string> activatedCheckpoints = new List<string>();
 
@@ -31,4 +30,6 @@ public class SaveData
     // --- NEW: 敌人和 Boss 状态 ---
     public List<string> defeatedBossNames = new List<string>(); // 记录已死亡的 Boss 名称
     public List<QLearningData> qLearningStats = new List<QLearningData>(); // 记录 Q-Learning 强度
+
+    public List<string> interactedObjectIds = new List<string>();
 }

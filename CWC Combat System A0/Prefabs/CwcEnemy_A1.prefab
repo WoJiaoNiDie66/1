@@ -7886,6 +7886,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f283b05e76024f24cb7a58a74a76a26c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  shouldRespawn: 1
   _playerMain: {fileID: 3793066009943959973}
   battleSkills:
   - {fileID: 5015997644407255598}
