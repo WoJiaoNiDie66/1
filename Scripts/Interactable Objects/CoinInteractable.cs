@@ -22,7 +22,6 @@ public class CoinInteractable : MonoBehaviour
             Debug.Log("Collected the coins");
             IsInteracting = true;
             ActiveGameUIManager.OnPlayerCoinColleceted.Invoke(coinAmount);
-            InteractableManager.Instance.CloseMessage();
             Destroy(gameObject);
         }
     }

@@ -58,12 +58,12 @@ public class Checkpoint : MonoBehaviour
     private void Update()
     {
         AnimateVisuals();
-        if (!playerInRange) return;
+        if (!playerInRange || CheckpointPanel.Instance == null || ActiveGameUIManager.isPaused) return;
 
         // 【保留】组员的 UI 面板逻辑
-        if (Input.GetKeyDown(KeyCode.F) && CheckpointPanel.Instance != null && !CheckpointPanel.Instance.IsOpen)
+        if (Input.GetKeyDown(KeyCode.F) && !CheckpointPanel.Instance.IsOpen)
         {
-            CheckpointPanel.Instance.Open(this);
+            CheckpointManager.OnCheckpointPanelOpened?.Invoke(this);
         }
     }
 

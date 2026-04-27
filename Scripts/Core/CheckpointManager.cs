@@ -1,10 +1,13 @@
 // Assets/Scripts/Core/CheckpointManager.cs
 using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine.Events;
 
 public class CheckpointManager : MonoBehaviour
 {
     public static CheckpointManager Instance { get; private set; }
+
+    public static UnityAction<Checkpoint> OnCheckpointPanelOpened; 
 
     private readonly List<Checkpoint> activatedCheckpoints = new List<Checkpoint>();
     private Checkpoint currentCheckpoint;

@@ -9,6 +9,7 @@ public class CharmManager : MonoBehaviour
     public static UnityAction<Charm> OnCharmUnequipped;
     public static UnityAction OnUIModeChanged;
     public static bool EquippedCharmMode = true;
+    public static bool IsSwitchingMode = false;
 
     [SerializeField] private CharmInventoryUI charmInventoryUI;
     [SerializeField] private EquipCharmInventoryUI equipCharmInventoryUI;
@@ -17,17 +18,40 @@ public class CharmManager : MonoBehaviour
     // NEW: Reference to player combat system
     [SerializeField] private CombatSystem_Player_A0 playerCombatSystem;
 
+    public static void SwitchCharmMode()
+    {
+        Debug.Log("Switching");
+        IsSwitchingMode = true;
+        EquippedCharmMode = !EquippedCharmMode;
+        OnUIModeChanged.Invoke();
+        IsSwitchingMode = false;
+        Debug.Log("Finished Switching");
+    }
+
     private void Awake()
     {
         OnCharmEquipped += HandleCharmEquipped;
         OnCharmUnequipped += HandleCharmUnequipped;
+        OnUIModeChanged += HandleUIModeChanged;
         UpdateCharm();
+    }
+
+    private void Start()
+    {
+        // Ensure the correct UI is active at the start
     }
 
     private void OnDestroy()
     {
         OnCharmEquipped -= HandleCharmEquipped;
         OnCharmUnequipped -= HandleCharmUnequipped;
+    }
+
+    private void HandleUIModeChanged()
+    {
+        Debug.Log(EquippedCharmMode ? "Equipped Charm Mode" : "Unequipped Charm Mode");
+        charmInventoryUI.enabled = !EquippedCharmMode;
+        equipCharmInventoryUI.enabled = EquippedCharmMode;
     }
 
     private void HandleCharmEquipped(Charm charm)

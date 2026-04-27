@@ -37,6 +37,7 @@ public class CheckpointPanel : MonoBehaviour
         }
         Instance = this;
         DontDestroyOnLoad(gameObject);
+        CheckpointManager.OnCheckpointPanelOpened += Open;
     }
 
     private void Update()

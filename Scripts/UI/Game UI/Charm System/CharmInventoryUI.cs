@@ -21,7 +21,8 @@ public class CharmInventoryUI : SelectorManager
         CharmSaveBridge.OnCharmStateApplied += TriggerSync;
         
         // Run it once on Start just in case it loaded before this script woke up
-        TriggerSync(); 
+        TriggerSync();
+        enabled = false;
     }
 
     protected virtual void OnDestroy()
@@ -116,7 +117,9 @@ public class CharmInventoryUI : SelectorManager
 
     protected override void Update()
     {
-        if (CharmManager.EquippedCharmMode) return;
+        if (CharmManager.EquippedCharmMode || CharmManager.IsSwitchingMode) return;
+
+        Debug.Log("In Charm Mode.");
 
         if (Input.GetKeyDown(KeyCode.F))
         {
@@ -163,21 +166,21 @@ public class CharmInventoryUI : SelectorManager
             }
             else if (currentIndex < columns)
             {
-                CharmManager.EquippedCharmMode = true;
-                CharmManager.OnUIModeChanged.Invoke();
+                CharmManager.SwitchCharmMode();
+                return;
             }
             UIHover();
         }
         else if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
         {
-            if (!CharmManager.EquippedCharmMode)
+
+            if (currentIndex + columns < uis.Length)
             {
-                if (currentIndex + columns < uis.Length)
-                {
-                    currentIndex += columns;
-                }
-                UIHover();  
+                Debug.Log("Go Down");
+                currentIndex += columns;
             }
+            UIHover();  
+
         }
     }
 
@@ -249,10 +252,10 @@ public class CharmInventoryUI : SelectorManager
     {
         if (CharmManager.EquippedCharmMode)
         {
-            CharmManager.EquippedCharmMode = false;
-            CharmManager.OnUIModeChanged.Invoke();
+            CharmManager.SwitchCharmMode();
         }
-        
+
+
         var slotUI = ui as CharmSlotUI;
         if (slotUI == null) return;
         

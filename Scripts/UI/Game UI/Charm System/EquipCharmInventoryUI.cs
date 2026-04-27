@@ -38,7 +38,9 @@ public class EquipCharmInventoryUI : SelectorManager
 
     protected override void Update()
     {
-        if (!CharmManager.EquippedCharmMode) return;
+        if (!CharmManager.EquippedCharmMode || CharmManager.IsSwitchingMode) return;
+
+        Debug.Log("In Equip Charm Mode.");
 
         if (Input.GetKeyDown(KeyCode.F))
         {
@@ -76,9 +78,8 @@ public class EquipCharmInventoryUI : SelectorManager
         }
         else if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
         {
-            CharmManager.EquippedCharmMode = false;
-            CharmManager.OnUIModeChanged.Invoke();
-            UIHover();
+            Debug.Log("Switching to Charm Mode");
+            CharmManager.SwitchCharmMode();
         }
     }
 
@@ -132,8 +133,7 @@ public class EquipCharmInventoryUI : SelectorManager
     {
         if (!CharmManager.EquippedCharmMode)
         {
-            CharmManager.EquippedCharmMode = true;
-            CharmManager.OnUIModeChanged.Invoke();
+            CharmManager.SwitchCharmMode();
         }
 
             var slotUI = UI as EquipCharmSlotUI;

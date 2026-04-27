@@ -17,6 +17,6 @@ MonoBehaviour:
   description: 
   upgradeSprite: {fileID: 2073097276, guid: ed2cc3522cf100c45b60708f62eff73a, type: 3}
   skillType: 14
-  value: 0
+  value: 14
   locked: 1
   unlockable: 1
