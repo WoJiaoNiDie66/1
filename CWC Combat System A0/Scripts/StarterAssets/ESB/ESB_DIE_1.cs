@@ -61,6 +61,15 @@ public class ESB_DIE_1 : StateMachineBehaviour
         _playerMain._combatSystem.DeactivateAllHitboxes();
         // _playerMain._combatSystem.PushVE(_playerMain._combatSystem.VEDatas[2]); // 2 is BA
         _playerMain._animator.SetBool(_playerMain._enemyDecision._animIDDeath, true);
+        
+        TankVFXHandler vfxHandler = animator.GetComponent<TankVFXHandler>();
+        if (vfxHandler != null)
+        {
+            // 假设你在 Tank_VFXData 里给死亡特效设的 ID 是 100
+            vfxHandler.ExecuteTankVFX(100);
+            vfxHandler.ExecuteTankVFX(101);  
+            Debug.Log("<color=red>[死亡状态机]</color> 已成功触发坦克死亡特效！");
+        }
         // vfx
         // sfx
     }

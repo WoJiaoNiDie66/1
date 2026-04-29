@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,6 +14,8 @@ public abstract class SelectorManager : MonoBehaviour
 
     protected int currentIndex = 0;
 
+    protected SelectionUI currentUI;
+
     // Start is called before the first frame update
     protected virtual void Start()
     {
@@ -25,13 +28,15 @@ public abstract class SelectorManager : MonoBehaviour
         {
             uis[i].UnHighlight();
         }
-        uis[0].Highlight();
+        currentUI = uis[currentIndex];
+        currentUI.Highlight();
     }
 
     protected virtual void Update()
     {
         if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
         {
+            currentUI.UnHighlight();
             if (currentIndex == 0)
             {
                 currentIndex = uis.Length - 1;
@@ -40,11 +45,11 @@ public abstract class SelectorManager : MonoBehaviour
             {
                 currentIndex--;
             }
-
             UIHover();
         }
         else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
         {
+            currentUI.UnHighlight();
             if (currentIndex == uis.Length - 1)
             {
                 currentIndex = 0;
@@ -53,11 +58,12 @@ public abstract class SelectorManager : MonoBehaviour
             {
                 currentIndex++;
             }
-
             UIHover();
 
-        }else if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
+        }
+        else if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
         {
+            currentUI.UnHighlight();
             if (currentIndex < columns)
             {
                 currentIndex = (uis.Length - columns + currentIndex );
@@ -66,12 +72,12 @@ public abstract class SelectorManager : MonoBehaviour
             {
                 currentIndex = currentIndex - columns;
             }
-
             UIHover();
 
         }
         else if(Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
         {
+            currentUI.UnHighlight();
             if (currentIndex+columns >= uis.Length)
             {
                 currentIndex = currentIndex+columns - uis.Length;
@@ -88,33 +94,19 @@ public abstract class SelectorManager : MonoBehaviour
 
     public virtual void UIHover()
     {
-        for (int i = 0; i < uis.Length; i++)
-        {
-            if (i != currentIndex)
-            {
-                uis[i].UnHighlight();
-            }
-            else
-            {
-                uis[i].Highlight();
-            }
-        }
+        currentUI = uis[currentIndex];
+        currentUI.Highlight();
     }
 
     public virtual void UIHover(SelectionUI UI)
     {
-        for (int i = 0; i < uis.Length; i++)
+        if (currentUI != null)
         {
-            if (uis[i] != UI)
-            {
-                uis[i].UnHighlight();
-            }
-            else
-            {
-                currentIndex = i;
-                uis[i].Highlight();
-            }
+            currentUI.UnHighlight();
         }
+        currentUI = UI;
+        currentUI.Highlight();
+        currentIndex = Array.IndexOf(uis, UI);
     }
 
     public abstract void UIClicked(SelectionUI ui);

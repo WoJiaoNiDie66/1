@@ -63,7 +63,9 @@ public class ItemSlotUI : SelectionUI
 
     public override void Highlight()
     {
+        Debug.Log("Highlight");
         highlightImage.sprite = borderSprites[0];
+        base.Highlight();
     }
 
     public override void UnHighlight()
@@ -72,6 +74,14 @@ public class ItemSlotUI : SelectionUI
             highlightImage.sprite = borderSprites[2];
         else
             highlightImage.sprite = borderSprites[1];
+
+        if (!flashStopped)
+        {
+            flashStopped = true;
+            StopFlashing();
+            highlightImage.color = new Color(1, 1, 1, MAXALPHA);
+        }
+            
     }
 
     public void OnUnlock()

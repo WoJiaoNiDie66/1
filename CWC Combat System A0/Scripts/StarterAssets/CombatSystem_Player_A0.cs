@@ -148,6 +148,9 @@ public class CombatSystem_Player_A0 : MonoBehaviour
     public bool isReady = false;
     public float equipmentWeaponDamageMultiplier = 1f;
 
+    [Header("Weapon Buff State")]
+    public int currentWeaponBuffIndex = 0;
+
 
     [Header("Charm Effects")]
     public bool charmHealthRegen = false;
@@ -444,6 +447,11 @@ public class CombatSystem_Player_A0 : MonoBehaviour
     {
         if (hitboxIndex >= 0 && hitboxIndex < hitboxes.Length)
         {
+            if (hitboxIndex == 0 && weaponBuffDataIndex == 0)
+            {
+                weaponBuffDataIndex = currentWeaponBuffIndex;
+            }
+
             hitboxes[hitboxIndex].UpdateDamageData(weaponDatas[weaponDataIndex], 0);
             hitboxes[hitboxIndex].UpdateDamageData(weaponBuffDatas[weaponBuffDataIndex], 1);
             hitboxes[hitboxIndex].UpdateDamageData(skillDatas[skillDataIndex], 2);
@@ -560,5 +568,14 @@ public class CombatSystem_Player_A0 : MonoBehaviour
         {
             Debug.LogError("<color=red>[Player Death]</color> SaveManager.Instance is null! Could not reload game.");
         }
+    }
+
+    // 供物品系统调用：给武器上附魔
+    public void ApplyWeaponBuff(int buffIndex)
+    {
+        currentWeaponBuffIndex = buffIndex;
+        Debug.Log($"<color=orange>[Weapon Buff]</color> 武器已附魔，当前Buff索引: {buffIndex}");
+        
+        // 如果你需要做附魔持续时间，可以在这里开启一个协程倒计时，时间到了把 currentWeaponBuffIndex 设回 0
     }
 }

@@ -31,12 +31,16 @@ public class Hitbox : MonoBehaviour
 
     public readonly object _rewardLock = new object();
     public List<DamageData> currentPendingRewardList = new List<DamageData> { };
+
+    public bool defaultHitbox = false;
     
     void Awake()
     {
         hitboxCollider = GetComponent<Collider>();
         hitboxCollider.isTrigger = true;
         DisableHitbox();
+        if (defaultHitbox)
+            ActivateHitbox();
     }
 
     private void ApplyEquipmentWeaponBonus(DamageData damageData)

@@ -3,7 +3,7 @@ using UnityEngine.AI;
 using UnityEngine.Animations;
 using System;
 using System.Collections.Generic;
-
+using System.Collections;
 [Serializable]
 public class SkeletonSwordDecision : MonoBehaviour
 {
@@ -91,6 +91,19 @@ public class SkeletonSwordDecision : MonoBehaviour
 
     // for debugging
     public bool debugMode = false;
+
+    [Header("Boss 钩爪技能配置")]
+    public LineRenderer bossLR;          // Boss 的绳索渲染器
+    public Transform bossGunTip;         // Boss 手部发射点
+    public GameObject bossHookPrefab;    // 钩爪头预制体
+    
+    [Space(10)]
+    public float hookScale = 50f;        // 【需求】：缩放大小设为 50
+    public Vector3 hookRotationOffset;   // 【需求】：开放角度调整
+    public float flyOutDuration = 0.5f;  // 【需求】：匹配动画，调整飞出快慢
+    public float stayDuration = 0.2f;    // 钩爪在终点停留的时间
+    
+    private GameObject activeBossHook;   // 运行时生成的钩爪实例
 
     public void AssignAnimationIDs()
     {
@@ -412,5 +425,106 @@ public class SkeletonSwordDecision : MonoBehaviour
 
         // 3. 保底状态判定
         return !gameObject.activeInHierarchy;
+    }
+
+    private void Start()
+    {
+        _playerMain = GetComponent<SkeletonSwordMain_A0>(); // 获取主脚本引用
+        
+        // 【核心修复】：生成时确保它没有父物体 (null)
+        if (bossHookPrefab != null)
+        {
+            activeBossHook = Instantiate(bossHookPrefab, Vector3.zero, Quaternion.identity, null);
+            activeBossHook.transform.localScale = Vector3.one * hookScale; // 应用 50 倍缩放
+            activeBossHook.SetActive(false);
+        }
+        
+        if (bossLR != null)
+        {
+            bossLR.positionCount = 2;
+            bossLR.enabled = false;
+        }
+        AssignAnimationIDs();
+    }
+
+    // --- 动画事件调用函数 ---
+    public void AnimEvent_BossShootHook()
+    {
+        if (Target == null) return;
+        
+        // 瞄准玩家位置（可以加个 Y 轴偏移瞄准胸口）
+        Vector3 targetPos = Target.position;
+        StopAllCoroutines(); // 防止连发冲突
+        StartCoroutine(BossHookRoutine(targetPos));
+    }
+
+    private IEnumerator BossHookRoutine(Vector3 targetPos)
+    {
+        if (bossLR == null || activeBossHook == null) yield break;
+
+        activeBossHook.SetActive(true);
+        bossLR.enabled = true;
+        Vector3 startPos = bossGunTip.position; // 绳子起点固定在手部
+        float timer = 0f;
+
+        while (timer < flyOutDuration)
+        {
+            timer += Time.deltaTime;
+            float t = timer / flyOutDuration;
+            
+            // 使用 Lerp 确保位置严格处于起点和终点之间
+            Vector3 currentPos = Vector3.Lerp(startPos, targetPos, t);
+
+            // 更新绳索：两点必须完全对齐
+            bossLR.SetPosition(0, bossGunTip.position);
+            bossLR.SetPosition(1, currentPos);
+
+            // 更新钩爪位置
+            activeBossHook.transform.position = currentPos;
+
+            // 【核心修复】：重新对齐旋转逻辑
+            // 先让 Z 轴指向目标，再叠加你自定义的角度偏移
+            Vector3 direction = (targetPos - startPos).normalized;
+            if (direction != Vector3.zero)
+            {
+                activeBossHook.transform.rotation = Quaternion.LookRotation(direction);
+                // 应用面板里的 hookRotationOffset
+                activeBossHook.transform.Rotate(hookRotationOffset, Space.Self);
+            }
+
+            yield return null;
+        }
+
+        // 3. 钉在目标位置停留
+        activeBossHook.transform.position = targetPos;
+        bossLR.SetPosition(1, targetPos);
+        yield return new WaitForSeconds(stayDuration);
+
+        // 4. 快速收回逻辑
+        timer = 0f;
+        float retractDuration = 0.2f;
+        Vector3 lastPos = activeBossHook.transform.position;
+
+        while (timer < retractDuration)
+        {
+            timer += Time.deltaTime;
+            float t = timer / retractDuration;
+            Vector3 currentPos = Vector3.Lerp(lastPos, bossGunTip.position, t);
+
+            bossLR.SetPosition(0, bossGunTip.position);
+            bossLR.SetPosition(1, currentPos);
+            activeBossHook.transform.position = currentPos;
+            yield return null;
+        }
+
+        // 5. 隐藏
+        activeBossHook.SetActive(false);
+        bossLR.enabled = false;
+    }
+
+    private void CheckHookHit(Vector3 pos)
+    {
+        // 这里可以写伤害逻辑
+        // 如果玩家离 pos 很近，则判定被钩中
     }
 }

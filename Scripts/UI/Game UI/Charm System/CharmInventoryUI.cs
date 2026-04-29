@@ -150,16 +150,19 @@ public class CharmInventoryUI : SelectorManager
 
         if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
         {
+            currentUI.UnHighlight();
             if (currentIndex > 0) currentIndex--;
             UIHover();
         }
         else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
         {
+            currentUI.UnHighlight();
             if (currentIndex < uis.Length - 1) currentIndex++;
             UIHover();
         }
         else if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
         {
+            currentUI.UnHighlight();
             if (currentIndex >= columns)
             {
                 currentIndex -= columns;
@@ -173,7 +176,7 @@ public class CharmInventoryUI : SelectorManager
         }
         else if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
         {
-
+            currentUI.UnHighlight();
             if (currentIndex + columns < uis.Length)
             {
                 Debug.Log("Go Down");
@@ -193,13 +196,9 @@ public class CharmInventoryUI : SelectorManager
     {
         if (!CharmManager.EquippedCharmMode)
         {
-            for (int i = 0; i < uis.Length; i++)
-            {
-                if (i != currentIndex) uis[i].UnHighlight();
-                else uis[i].Highlight();
-            }
+            base.UIHover();
 
-            var slotUI = uis[currentIndex] as CharmSlotUI;
+            var slotUI = currentUI as CharmSlotUI;
             if (slotUI == null) return;
 
             if (slotUI.Charm == null || !slotUI.Charm.Unlocked)
@@ -244,7 +243,7 @@ public class CharmInventoryUI : SelectorManager
         }
         else
         {
-            for (int i = 0; i < uis.Length; i++) uis[i].UnHighlight();
+            for (int i = 0; i < uis.Length; i++) uis[currentIndex].UnHighlight();
         }
     }
 

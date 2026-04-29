@@ -142,7 +142,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bloodSplatterPrefab: {fileID: 1855497614338780, guid: 0f6ae018e7ac4494d987aa9222852b61,
     type: 3}
-  fixedSpawnPoint: {fileID: 0}
+  fireVfxPrefab: {fileID: 0}
+  electricVfxPrefab: {fileID: 0}
+  elementScaleMultiplier: 1
+  electricHDRColor: {r: 0, g: 0.6, b: 1, a: 4}
+  fireHDRColor: {r: 1, g: 0.2, b: 0, a: 3}
 --- !u!114 &60089206
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4269,6 +4273,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6517078703440792418, guid: f4cf60d30ceb3e54bb989c1721319b90,
         type: 3}
+      propertyPath: player
+      value: 
+      objectReference: {fileID: 1389209596}
+    - target: {fileID: 6517078703440792418, guid: f4cf60d30ceb3e54bb989c1721319b90,
+        type: 3}
       propertyPath: playerInput
       value: 
       objectReference: {fileID: 1389209598}
@@ -5433,7 +5442,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bloodSplatterPrefab: {fileID: 1855497614338780, guid: 0f6ae018e7ac4494d987aa9222852b61,
     type: 3}
-  fixedSpawnPoint: {fileID: 0}
+  fireVfxPrefab: {fileID: 0}
+  electricVfxPrefab: {fileID: 0}
+  elementScaleMultiplier: 1
+  electricHDRColor: {r: 0, g: 0.6, b: 1, a: 4}
+  fireHDRColor: {r: 1, g: 0.2, b: 0, a: 3}
 --- !u!1 &1338166171
 GameObject:
   m_ObjectHideFlags: 0
@@ -5696,6 +5709,8 @@ MonoBehaviour:
   leftWeaponAnchor: {fileID: 0}
   swordTrail: {fileID: 2041372261}
   weaponOilBuff: {fileID: 842330542}
+  combatSystem: {fileID: 0}
+  fireBuffIndex: 6
 --- !u!114 &1389209595 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7700262902144289637, guid: 2e748bc40b4fb104bbe99278d5ca2974,
@@ -5776,7 +5791,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bloodSplatterPrefab: {fileID: 1855497614338780, guid: 0f6ae018e7ac4494d987aa9222852b61,
     type: 3}
-  fixedSpawnPoint: {fileID: 0}
+  fireVfxPrefab: {fileID: 0}
+  electricVfxPrefab: {fileID: 0}
+  elementScaleMultiplier: 1
+  electricHDRColor: {r: 0, g: 0.6, b: 1, a: 4}
+  fireHDRColor: {r: 1, g: 0.2, b: 0, a: 3}
 --- !u!1 &1413380202 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8706077878956109891, guid: f4cf60d30ceb3e54bb989c1721319b90,
@@ -6471,6 +6490,74 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1704116759}
   m_CullTransparentMesh: 1
+--- !u!1001 &1728619909
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1286947205485422393, guid: 3e4f6d8070fd03042a6ace363e445d3e,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 22.78121
+      objectReference: {fileID: 0}
+    - target: {fileID: 1286947205485422393, guid: 3e4f6d8070fd03042a6ace363e445d3e,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 20.231087
+      objectReference: {fileID: 0}
+    - target: {fileID: 1286947205485422393, guid: 3e4f6d8070fd03042a6ace363e445d3e,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 6.3207526
+      objectReference: {fileID: 0}
+    - target: {fileID: 1286947205485422393, guid: 3e4f6d8070fd03042a6ace363e445d3e,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1286947205485422393, guid: 3e4f6d8070fd03042a6ace363e445d3e,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1286947205485422393, guid: 3e4f6d8070fd03042a6ace363e445d3e,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1286947205485422393, guid: 3e4f6d8070fd03042a6ace363e445d3e,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1286947205485422393, guid: 3e4f6d8070fd03042a6ace363e445d3e,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1286947205485422393, guid: 3e4f6d8070fd03042a6ace363e445d3e,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1286947205485422393, guid: 3e4f6d8070fd03042a6ace363e445d3e,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6832108972281064698, guid: 3e4f6d8070fd03042a6ace363e445d3e,
+        type: 3}
+      propertyPath: m_Name
+      value: Coin
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 3e4f6d8070fd03042a6ace363e445d3e, type: 3}
 --- !u!114 &1824795915 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1233117277167377144, guid: f4cf60d30ceb3e54bb989c1721319b90,
@@ -7275,3 +7362,4 @@ SceneRoots:
   - {fileID: 1677665322}
   - {fileID: 716433450}
   - {fileID: 240076959}
+  - {fileID: 1728619909}

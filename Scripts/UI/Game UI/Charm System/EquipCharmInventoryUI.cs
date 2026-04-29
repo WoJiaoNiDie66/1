@@ -60,6 +60,7 @@ public class EquipCharmInventoryUI : SelectorManager
 
         if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
         {
+            currentUI.UnHighlight();
             if (currentIndex > 0)
             {
                 currentIndex--;
@@ -69,6 +70,7 @@ public class EquipCharmInventoryUI : SelectorManager
         }
         else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
         {
+            currentUI.UnHighlight();
             if (currentIndex < uis.Length - 1)
             {
                 currentIndex++;
@@ -87,19 +89,9 @@ public class EquipCharmInventoryUI : SelectorManager
     {
         if (CharmManager.EquippedCharmMode)
         {
-            for (int i = 0; i < uis.Length; i++)
-            {
-                if (i != currentIndex)
-                {
-                   uis[i].UnHighlight();
-                }
-                else
-                {
-                    uis[i].Highlight();
-                }
-            }
+            base.UIHover();
 
-            var slotUI = uis[currentIndex] as EquipCharmSlotUI;
+            var slotUI = currentUI as EquipCharmSlotUI;
 
             if(slotUI == null)
             {

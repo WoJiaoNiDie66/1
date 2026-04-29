@@ -2746,9 +2746,9 @@ MonoBehaviour:
   - Name: Strike
     Value: 0
   - Name: Slash
-    Value: 300
-  - Name: Pierce
     Value: 0
+  - Name: Pierce
+    Value: 300
   - Name: Magic
     Value: 0
   - Name: Fire
@@ -2765,9 +2765,9 @@ MonoBehaviour:
   - Name: Strike
     Value: 0
   - Name: Slash
-    Value: 10
-  - Name: Pierce
     Value: 0
+  - Name: Pierce
+    Value: 10
   - Name: Magic
     Value: 0
   - Name: Fire

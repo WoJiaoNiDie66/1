@@ -43,15 +43,19 @@ public class EquipmentSlotUI : SelectionUI, IPointerExitHandler
     public override void Highlight()
     {
         highlightImage.sprite = borderSprites[0];
-        //base.Highlight();
+        base.Highlight();
     }
-
-
 
     public override void UnHighlight()
     {
         highlightImage.sprite = borderSprites[1];
-        //base.UnHighlight();
+
+        if (!flashStopped)
+        {
+            flashStopped = true;
+            StopFlashing();
+            highlightImage.color = new Color(1, 1, 1, MAXALPHA);
+        }
     }
 
     public void Equip(EquippableItem item)

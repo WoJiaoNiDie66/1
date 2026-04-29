@@ -14740,9 +14740,9 @@ MonoBehaviour:
   - Name: Strike
     Value: 0
   - Name: Slash
-    Value: 300
-  - Name: Pierce
     Value: 0
+  - Name: Pierce
+    Value: 300
   - Name: Magic
     Value: 0
   - Name: Fire
@@ -14759,9 +14759,9 @@ MonoBehaviour:
   - Name: Strike
     Value: 0
   - Name: Slash
-    Value: 10
-  - Name: Pierce
     Value: 0
+  - Name: Pierce
+    Value: 10
   - Name: Magic
     Value: 0
   - Name: Fire
@@ -18231,6 +18231,8 @@ MonoBehaviour:
   currentPendingDamageDataList: []
   currentPendingVEList: []
   isReady: 0
+  equipmentWeaponDamageMultiplier: 1
+  currentWeaponBuffIndex: 0
   charmHealthRegen: 0
   charmStaminaBoost: 0
   charmRunSpeed: 0
@@ -19223,6 +19225,7 @@ MonoBehaviour:
     m_Bits: 8
   allowMultiHit: 1
   singleHitPerTarget: 1
+  equipmentDamageMultiplier: 1
   showDebug: 1
   debugColor: {r: 1, g: 0, b: 0, a: 0.3}
   currentPendingRewardList: []
@@ -19465,6 +19468,7 @@ MonoBehaviour:
     m_Bits: 8
   allowMultiHit: 1
   singleHitPerTarget: 1
+  equipmentDamageMultiplier: 1
   showDebug: 1
   debugColor: {r: 1, g: 0, b: 0, a: 0.3}
   currentPendingRewardList: []

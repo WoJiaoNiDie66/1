@@ -120,6 +120,13 @@ using UnityEngine.InputSystem;
         public bool RL_SkillR = false;
 
         public int nextStateID = 0;
+
+        // --- 抛物线飞索专用变量 ---
+        public bool isGrapplingArc = false;
+        private Vector3 grappleVelocity;
+        private Vector3 targetGrapplePos; // 【新增】：记住目标点在哪
+        private float grappleFlightTimer; // 【新增】：起飞时间计时器
+
         /*
             0: idle/walk/run blend
             1: dodge
@@ -576,6 +583,43 @@ using UnityEngine.InputSystem;
         /// </summary>
         public void MoveAndLook(float targetSpeed, Vector3 targetMovingDirection, float targetRotationOfPlayer, float VV)
         {
+            // 【飞索状态绝对接管移动控制】
+            if (isGrapplingArc)
+            {
+                grappleFlightTimer += Time.deltaTime;
+
+                // 计算玩家当前和目标点在水平面上（忽略高度）的距离
+                Vector3 currentXZ = new Vector3(transform.position.x, 0, transform.position.z);
+                Vector3 targetXZ = new Vector3(targetGrapplePos.x, 0, targetGrapplePos.z);
+                float distanceXZ = Vector3.Distance(currentXZ, targetXZ);
+
+                // 停止条件 1：水平距离极度接近目标点（到达终点）
+                bool reachedTarget = distanceXZ < 1.5f; 
+                // 停止条件 2：起飞至少 0.3 秒后，碰到了地面（完美降落）
+                bool landed = (grappleVelocity.y <= 0f && Grounded && grappleFlightTimer > 0.3f);
+                // 停止条件 3：防止卡在死角的极限超时保护 (5秒)
+                bool timeout = grappleFlightTimer > 5f;
+
+                if (reachedTarget || landed || timeout)
+                {
+                    StopGrappleParabola();
+                    // 不写 return，让它自然衔接下面的走路逻辑！
+                }
+                else
+                {
+                    // 还在飞！手动施加重力
+                    grappleVelocity.y += Gravity * Time.deltaTime;
+                    _controller.Move(grappleVelocity * Time.deltaTime);
+
+                    if (grappleVelocity.sqrMagnitude > 0.1f)
+                    {
+                        Quaternion grappleRot = Quaternion.LookRotation(new Vector3(grappleVelocity.x, 0, grappleVelocity.z));
+                        transform.rotation = Quaternion.Slerp(transform.rotation, grappleRot, 15f * Time.deltaTime);
+                    }
+                    return; // 跳出正常走路逻辑
+                }
+            }
+
             targetMovingDirection = targetMovingDirection.sqrMagnitude > 0.000001f ? targetMovingDirection.normalized : Vector3.forward;
 
             float finalTargetSpeed = targetSpeed;
@@ -638,5 +682,62 @@ using UnityEngine.InputSystem;
         public void IncrementCoinCount(int coin)
         {
             this.coins += coin;
+        }
+
+        /// <summary>
+        /// 触发抛物线飞索（替代原版 Rigidbody 的 JumpToPosition）
+        /// </summary>
+        public void StartGrappleParabola(Vector3 targetPosition, float trajectoryHeight)
+        {
+            isGrapplingArc = true;
+            nextStateID = 4; 
+            targetGrapplePos = targetPosition; // 记住终点
+            grappleFlightTimer = 0f; // 计时清零
+
+            float gravityAmount = Mathf.Abs(Gravity);
+            float displacementY = targetPosition.y - transform.position.y;
+            Vector3 displacementXZ = new Vector3(targetPosition.x - transform.position.x, 0f, targetPosition.z - transform.position.z);
+
+            Vector3 velocityY = Vector3.up * Mathf.Sqrt(2f * gravityAmount * trajectoryHeight);
+            
+            float timeToApex = Mathf.Sqrt(2f * trajectoryHeight / gravityAmount);
+            float descentTimeMath = 2f * (trajectoryHeight - displacementY) / gravityAmount;
+            float timeToDescend = descentTimeMath > 0 ? Mathf.Sqrt(descentTimeMath) : 0f;
+            
+            Vector3 velocityXZ = displacementXZ / (timeToApex + timeToDescend);
+
+            grappleVelocity = velocityXZ + velocityY;
+            // (删除了原本的 Invoke 超时机制，改用 Update 精确实时判定)
+        }
+
+        public void StopGrappleParabola()
+        {
+            isGrapplingArc = false;
+            _verticalVelocity = 0f; 
+            grappleVelocity = Vector3.zero;
+
+            if (_controller != null)
+            {
+                _controller.Move(Vector3.zero);
+            }
+            _speed = 0f;
+            _anim_targetSpeed = 0f;
+
+            // 【核心联动】：通知绳索脚本，我物理落地了，你可以把绳子收回去了！
+            Grappling grapplingScript = GetComponent<Grappling>();
+            if (grapplingScript != null)
+            {
+                grapplingScript.StopGrapple();
+            }
+        }
+
+        // 当人物碰撞到墙壁时，提前结束飞索
+        private void OnControllerColliderHit(ControllerColliderHit hit)
+        {
+            // 如果撞到了非地面的墙体，直接结束飞索
+            if (isGrapplingArc && hit.normal.y < 0.7f)
+            {
+                StopGrappleParabola();
+            }
         }
 }

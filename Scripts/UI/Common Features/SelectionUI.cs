@@ -5,16 +5,20 @@ using UnityEngine.UI;
 
 public abstract class SelectionUI : MonoBehaviour, IPointerEnterHandler, IPointerClickHandler
 {
-    private static float duration = 3f;
+    public float duration = 8f;
 
     [SerializeField]
     protected Image highlightImage;
 
-    private const float MAXALPHA = 0.75f;
+    protected const float MAXALPHA = 0.95f;
 
-    private const float MINALPHA = 0.15f;
+    protected const float MINALPHA = 0.20f;
 
-    private bool stop = false;
+    protected bool flashStopped = true;
+
+    private float lastRealTime;
+
+    private float currentRealTime;
 
     private Coroutine currentCoroutine;
 
@@ -23,13 +27,14 @@ public abstract class SelectionUI : MonoBehaviour, IPointerEnterHandler, IPointe
     protected virtual void Start()
     {
         ParentSelector = transform.parent.GetComponent<SelectorManager>();
+        lastRealTime = Time.realtimeSinceStartup;
     }
 
     public virtual void Highlight()
     {
         if (highlightImage != null && currentCoroutine == null)
         {
-            stop = false;
+            flashStopped = false;
             highlightImage.color = new Color(1, 1, 1, MINALPHA);
             StartFlashing();
         }
@@ -39,7 +44,7 @@ public abstract class SelectionUI : MonoBehaviour, IPointerEnterHandler, IPointe
     {
         if (highlightImage != null)
         {
-            stop = true;
+            flashStopped = true;
             StopFlashing();
             highlightImage.color = new Color(1, 1, 1, MINALPHA);
         }
@@ -78,13 +83,25 @@ public abstract class SelectionUI : MonoBehaviour, IPointerEnterHandler, IPointe
     {
         Color startColor = highlightImage.color;
         Color endColor = new Color(startColor.r, startColor.g, startColor.b, targetAlpha);
-        float time = 0f;
+        float elapsedTime = 0f;
+        float lastTime = Time.realtimeSinceStartup;
 
-        while (time < duration && !stop)
+        while (elapsedTime < duration && !flashStopped)
         {
-            time += Time.deltaTime;
-            float t = Mathf.Clamp01(time / duration);
+            float currentRealTime = Time.realtimeSinceStartup;
+            float deltaTime = currentRealTime - lastTime;
+            lastTime = currentRealTime;
+
+            // Cap delta time to avoid huge jumps
+            deltaTime = Mathf.Min(deltaTime, 0.1f);
+
+            Debug.Log("deltaTime: " + deltaTime);
+            Debug.Log("currentRealTime- lastTime: " + (currentRealTime - lastTime));
+
+            elapsedTime += deltaTime;
+            float t = Mathf.Clamp01(elapsedTime / duration);
             highlightImage.color = Color.Lerp(startColor, endColor, t);
+
             yield return null;
         }
     }

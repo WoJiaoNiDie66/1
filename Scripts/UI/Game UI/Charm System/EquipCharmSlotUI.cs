@@ -50,6 +50,7 @@ public class EquipCharmSlotUI : SelectionUI
     public override void Highlight()
     {
         highlightImage.sprite = borderSprites[0];
+        base.Highlight();
     }
 
 
@@ -57,6 +58,12 @@ public class EquipCharmSlotUI : SelectionUI
     public override void UnHighlight()
     {
         highlightImage.sprite = borderSprites[1];
+        if (!flashStopped)
+        {
+            flashStopped = true;
+            StopFlashing();
+            highlightImage.color = new Color(1, 1, 1, MAXALPHA);
+        }
     }
 
     public override void OnPointerEnter(PointerEventData eventData)
